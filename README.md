@@ -1,2 +1,2 @@
 # CaptureMate_FE
-CaptureMate 프론트엔드 레포입니다!
+CaptureMate FE 레포입니다!
