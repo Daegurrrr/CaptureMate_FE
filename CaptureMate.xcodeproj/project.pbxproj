@@ -1,0 +1,593 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BA1178362F8A4C3C00EA9EA8 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = BA1178352F8A4C3C00EA9EA8 /* GoogleSignIn */; };
+		BA1178382F8A4C3C00EA9EA8 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BA1178372F8A4C3C00EA9EA8 /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BAE46DCD2F837C1800C36682 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BAE46DB42F837C1700C36682 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BAE46DBB2F837C1700C36682;
+			remoteInfo = CaptureMate;
+		};
+		BAE46DD72F837C1800C36682 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BAE46DB42F837C1700C36682 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BAE46DBB2F837C1700C36682;
+			remoteInfo = CaptureMate;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BAE46DBC2F837C1700C36682 /* CaptureMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CaptureMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAE46DCC2F837C1800C36682 /* CaptureMateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CaptureMateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAE46DD62F837C1800C36682 /* CaptureMateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CaptureMateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BAE46DBE2F837C1700C36682 /* CaptureMate */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CaptureMate;
+			sourceTree = "<group>";
+		};
+		BAE46DCF2F837C1800C36682 /* CaptureMateTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CaptureMateTests;
+			sourceTree = "<group>";
+		};
+		BAE46DD92F837C1800C36682 /* CaptureMateUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CaptureMateUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BAE46DB92F837C1700C36682 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA1178362F8A4C3C00EA9EA8 /* GoogleSignIn in Frameworks */,
+				BA1178382F8A4C3C00EA9EA8 /* GoogleSignInSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAE46DC92F837C1800C36682 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAE46DD32F837C1800C36682 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BAE46DB32F837C1700C36682 = {
+			isa = PBXGroup;
+			children = (
+				BAE46DBE2F837C1700C36682 /* CaptureMate */,
+				BAE46DCF2F837C1800C36682 /* CaptureMateTests */,
+				BAE46DD92F837C1800C36682 /* CaptureMateUITests */,
+				BAE46DBD2F837C1700C36682 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BAE46DBD2F837C1700C36682 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BAE46DBC2F837C1700C36682 /* CaptureMate.app */,
+				BAE46DCC2F837C1800C36682 /* CaptureMateTests.xctest */,
+				BAE46DD62F837C1800C36682 /* CaptureMateUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BAE46DBB2F837C1700C36682 /* CaptureMate */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAE46DE02F837C1800C36682 /* Build configuration list for PBXNativeTarget "CaptureMate" */;
+			buildPhases = (
+				BAE46DB82F837C1700C36682 /* Sources */,
+				BAE46DB92F837C1700C36682 /* Frameworks */,
+				BAE46DBA2F837C1700C36682 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BAE46DBE2F837C1700C36682 /* CaptureMate */,
+			);
+			name = CaptureMate;
+			packageProductDependencies = (
+				BA1178352F8A4C3C00EA9EA8 /* GoogleSignIn */,
+				BA1178372F8A4C3C00EA9EA8 /* GoogleSignInSwift */,
+			);
+			productName = CaptureMate;
+			productReference = BAE46DBC2F837C1700C36682 /* CaptureMate.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BAE46DCB2F837C1800C36682 /* CaptureMateTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAE46DE32F837C1800C36682 /* Build configuration list for PBXNativeTarget "CaptureMateTests" */;
+			buildPhases = (
+				BAE46DC82F837C1800C36682 /* Sources */,
+				BAE46DC92F837C1800C36682 /* Frameworks */,
+				BAE46DCA2F837C1800C36682 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BAE46DCE2F837C1800C36682 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BAE46DCF2F837C1800C36682 /* CaptureMateTests */,
+			);
+			name = CaptureMateTests;
+			packageProductDependencies = (
+			);
+			productName = CaptureMateTests;
+			productReference = BAE46DCC2F837C1800C36682 /* CaptureMateTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BAE46DD52F837C1800C36682 /* CaptureMateUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAE46DE62F837C1800C36682 /* Build configuration list for PBXNativeTarget "CaptureMateUITests" */;
+			buildPhases = (
+				BAE46DD22F837C1800C36682 /* Sources */,
+				BAE46DD32F837C1800C36682 /* Frameworks */,
+				BAE46DD42F837C1800C36682 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BAE46DD82F837C1800C36682 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BAE46DD92F837C1800C36682 /* CaptureMateUITests */,
+			);
+			name = CaptureMateUITests;
+			packageProductDependencies = (
+			);
+			productName = CaptureMateUITests;
+			productReference = BAE46DD62F837C1800C36682 /* CaptureMateUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BAE46DB42F837C1700C36682 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					BAE46DBB2F837C1700C36682 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					BAE46DCB2F837C1800C36682 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = BAE46DBB2F837C1700C36682;
+					};
+					BAE46DD52F837C1800C36682 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = BAE46DBB2F837C1700C36682;
+					};
+				};
+			};
+			buildConfigurationList = BAE46DB72F837C1700C36682 /* Build configuration list for PBXProject "CaptureMate" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BAE46DB32F837C1700C36682;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BAE46DBD2F837C1700C36682 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BAE46DBB2F837C1700C36682 /* CaptureMate */,
+				BAE46DCB2F837C1800C36682 /* CaptureMateTests */,
+				BAE46DD52F837C1800C36682 /* CaptureMateUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BAE46DBA2F837C1700C36682 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAE46DCA2F837C1800C36682 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAE46DD42F837C1800C36682 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BAE46DB82F837C1700C36682 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAE46DC82F837C1800C36682 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAE46DD22F837C1800C36682 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BAE46DCE2F837C1800C36682 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BAE46DBB2F837C1700C36682 /* CaptureMate */;
+			targetProxy = BAE46DCD2F837C1800C36682 /* PBXContainerItemProxy */;
+		};
+		BAE46DD82F837C1800C36682 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BAE46DBB2F837C1700C36682 /* CaptureMate */;
+			targetProxy = BAE46DD72F837C1800C36682 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BAE46DDE2F837C1800C36682 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BAE46DDF2F837C1800C36682 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BAE46DE12F837C1800C36682 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CaptureMate/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daegurrr.CaptureMate.CaptureMate;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BAE46DE22F837C1800C36682 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CaptureMate/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daegurrr.CaptureMate.CaptureMate;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BAE46DE42F837C1800C36682 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daegurrr.CaptureMate.CaptureMateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CaptureMate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CaptureMate";
+			};
+			name = Debug;
+		};
+		BAE46DE52F837C1800C36682 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daegurrr.CaptureMate.CaptureMateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CaptureMate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CaptureMate";
+			};
+			name = Release;
+		};
+		BAE46DE72F837C1800C36682 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daegurrr.CaptureMate.CaptureMateUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = CaptureMate;
+			};
+			name = Debug;
+		};
+		BAE46DE82F837C1800C36682 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daegurrr.CaptureMate.CaptureMateUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = CaptureMate;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BAE46DB72F837C1700C36682 /* Build configuration list for PBXProject "CaptureMate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAE46DDE2F837C1800C36682 /* Debug */,
+				BAE46DDF2F837C1800C36682 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAE46DE02F837C1800C36682 /* Build configuration list for PBXNativeTarget "CaptureMate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAE46DE12F837C1800C36682 /* Debug */,
+				BAE46DE22F837C1800C36682 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAE46DE32F837C1800C36682 /* Build configuration list for PBXNativeTarget "CaptureMateTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAE46DE42F837C1800C36682 /* Debug */,
+				BAE46DE52F837C1800C36682 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAE46DE62F837C1800C36682 /* Build configuration list for PBXNativeTarget "CaptureMateUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAE46DE72F837C1800C36682 /* Debug */,
+				BAE46DE82F837C1800C36682 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BA1178352F8A4C3C00EA9EA8 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		BA1178372F8A4C3C00EA9EA8 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BAE46DB42F837C1700C36682 /* Project object */;
+}

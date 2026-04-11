@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Xcode build
+build/
+DerivedData/
+
+# Xcode user data
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserdatad/
+*.xcuserstate
+*.pbxuser
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# Secrets
+Secrets.xcconfig
