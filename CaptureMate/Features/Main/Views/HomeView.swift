@@ -81,5 +81,19 @@ struct HomeView: View {
         .onAppear {
             viewModel.loadRecentScreenshots()
         }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.willEnterForegroundNotification
+            )
+        ) { _ in
+            viewModel.loadRecentScreenshots()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSNotification.Name("ScreenshotDataUpdated")
+            )
+        ) { _ in
+            viewModel.loadRecentScreenshots()
+        }
     }
 }

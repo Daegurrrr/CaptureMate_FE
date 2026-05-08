@@ -34,6 +34,48 @@ struct AddView: View {
             .onAppear {
                 viewModel.requestPhotoPermissionAndLoad()
             }
+            .confirmationDialog(
+                "언제부터 캡쳐를 가져올까요?",
+                isPresented: $viewModel.showDateFilterSheet,
+                titleVisibility: .visible
+            ) {
+                Button("오늘") {
+                    let date = Calendar.current.startOfDay(for: Date())
+                    viewModel.selectStartDate(date)
+                }
+
+                Button("3일 전부터") {
+                    let date = Calendar.current.date(
+                        byAdding: .day,
+                        value: -3,
+                        to: Date()
+                    ) ?? Date()
+
+                    viewModel.selectStartDate(date)
+                }
+
+                Button("일주일 전부터") {
+                    let date = Calendar.current.date(
+                        byAdding: .day,
+                        value: -7,
+                        to: Date()
+                    ) ?? Date()
+
+                    viewModel.selectStartDate(date)
+                }
+
+                Button("한 달 전부터") {
+                    let date = Calendar.current.date(
+                        byAdding: .month,
+                        value: -1,
+                        to: Date()
+                    ) ?? Date()
+
+                    viewModel.selectStartDate(date)
+                }
+
+                Button("취소", role: .cancel) { }
+            }
         }
     }
 
@@ -80,7 +122,11 @@ struct AddView: View {
         }
     }
 
-    private func screenshotCard(photo: ScreenshotPhoto, width: CGFloat?, height: CGFloat) -> some View {
+    private func screenshotCard(
+        photo: ScreenshotPhoto,
+        width: CGFloat?,
+        height: CGFloat
+    ) -> some View {
         Image(uiImage: photo.image)
             .resizable()
             .scaledToFill()
@@ -115,4 +161,8 @@ struct AddView: View {
         }
         .frame(maxWidth: .infinity, minHeight: 220)
     }
+}
+
+#Preview {
+    AddView()
 }
