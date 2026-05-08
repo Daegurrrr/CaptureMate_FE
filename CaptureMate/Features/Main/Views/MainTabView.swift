@@ -26,7 +26,7 @@ struct MainTabView: View {
                 }
                 .tag(MainTab.category)
 
-            Text("Add")
+            AddView()
                 .tabItem {
                     Image(systemName: "plus")
                     Text("Add")

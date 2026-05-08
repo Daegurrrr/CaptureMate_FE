@@ -8,23 +8,20 @@
 import SwiftUI
 
 struct RecentCaptureSection: View {
-    let images: [String]
+    let images: [UIImage]
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                ForEach(images, id: \.self) { imageName in
-                    Image(imageName)
+                ForEach(Array(images.enumerated()), id: \.offset) { _, image in
+                    Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 112, height: 112)
+                        .frame(width: 110, height: 140)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                         .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
-            .padding(16)
         }
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
     }
 }
