@@ -13,18 +13,18 @@ struct RootView: View {
     
     var body: some View {
         // 개발 테스트용(메인페이지부터 실행됨)
-        MainTabView()
+//        MainTabView()
         
         // 실제 앱용
-//        Group {
-//            if session.isLoggedIn {
-//                MainTabView()
-//            } else if !session.hasSeenIntro {
-//                IntroPagerView()
-//            } else {
-//                AuthEntryView()
-//            }
-//        }
+        Group {
+            if session.isLoggedIn {
+                MainTabView()
+            } else if !session.hasSeenIntro {
+                IntroPagerView()
+            } else {
+                AuthEntryView()
+            }
+        }
     }
 }
 

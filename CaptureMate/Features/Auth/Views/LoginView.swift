@@ -18,6 +18,8 @@ import AuthenticationServices
 struct LoginView: View {
     @EnvironmentObject private var session: AppSession
 
+    @StateObject private var viewModel = LoginViewModel()
+
     @State private var userId: String = ""
     @State private var password: String = ""
     @State private var isAutoLogin: Bool = false
@@ -108,8 +110,7 @@ struct LoginView: View {
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.secondary)
 
-                    SocialLoginButtonsView()
-
+                    SocialLoginButtonsView(viewModel: viewModel)
                 }
                 .padding(.horizontal, 24)
 
