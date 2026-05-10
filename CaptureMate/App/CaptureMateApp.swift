@@ -15,7 +15,10 @@ struct CaptureMateApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(session)
+                .onAppear {
+                    LocalNotificationScheduler.shared.scheduleIfAlreadyAllowed()
+                    LocalNotificationScheduler.shared.resetBadge()
+                }
         }
     }
 }
-
