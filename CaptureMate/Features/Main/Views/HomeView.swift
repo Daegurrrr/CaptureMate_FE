@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    @StateObject private var viewModel = HomeViewModel()
+
     let summary = CaptureSummary(
         totalCount: 5,
         placeCount: 3,
@@ -33,25 +35,17 @@ struct HomeView: View {
         )
     ]
 
-    let recentImages: [String] = [
-        "recent_1",
-        "recent_2",
-        "recent_3",
-        "recent_4",
-        "recent_5"
-    ]
-
     var body: some View {
         VStack(spacing: 0) {
             HomeHeaderView()
-            
-            VStack(spacing: 0) {
-                    SearchBarView()
 
-                    Spacer()
-                        .frame(height: 16)   // ← 흰 영역 늘리는 부분
-                }
-                .background(Color.white)
+            VStack(spacing: 0) {
+                SearchBarView()
+
+                Spacer()
+                    .frame(height: 16)
+            }
+            .background(Color.white)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
@@ -74,7 +68,7 @@ struct HomeView: View {
                         .font(.system(size: 20, weight: .bold))
                         .padding(.horizontal, 16)
 
-                    RecentCaptureSection(images: recentImages)
+                    RecentCaptureSection(images: viewModel.recentScreenshots)
                         .padding(.horizontal, 16)
 
                     Spacer(minLength: 20)
@@ -84,9 +78,22 @@ struct HomeView: View {
             .background(Color(red: 245/255, green: 244/255, blue: 249/255))
         }
         .background(Color.white)
+        .onAppear {
+            viewModel.loadRecentScreenshots()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.willEnterForegroundNotification
+            )
+        ) { _ in
+            viewModel.loadRecentScreenshots()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSNotification.Name("ScreenshotDataUpdated")
+            )
+        ) { _ in
+            viewModel.loadRecentScreenshots()
+        }
     }
-}
-
-#Preview {
-    HomeView()
 }
