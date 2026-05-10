@@ -102,12 +102,25 @@ final class LocalNotificationScheduler {
         content.body = "오늘 저장된 스크린샷에서 장소, 쿠폰, 일정을 정리할 시간이에요."
         content.sound = .default
         content.badge = 1
-
-        var dateComponents = DateComponents()
-        dateComponents.hour = 22
-        dateComponents.minute = 0
-
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        content.userInfo = [
+            "destination": "add"
+        ]
+        
+        
+        // 알림 바로 테스트하고 싶으면 아래의 테스트 코드로 대체해서 실행
+//        var dateComponents = DateComponents()
+//        dateComponents.hour = 22
+//        dateComponents.minute = 0
+//
+//        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        
+        // 10초 뒤 알람 테스트용
+        let trigger = UNTimeIntervalNotificationTrigger(
+            timeInterval: 10,
+            repeats: false
+        )
+        
+        
         let request = UNNotificationRequest(
             identifier: dailyCaptureCheckIdentifier,
             content: content,

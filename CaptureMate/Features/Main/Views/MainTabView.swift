@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @EnvironmentObject private var notificationRouter: NotificationRouter
     @State private var selectedTab: MainTab = .home
 
     var body: some View {
@@ -47,9 +48,16 @@ struct MainTabView: View {
                 }
                 .tag(MainTab.my)
         }
+        .onReceive(notificationRouter.$shouldOpenAddView) { shouldOpenAddView in
+            guard shouldOpenAddView else { return }
+
+            selectedTab = .add
+            notificationRouter.markAddViewOpened()
+        }
     }
 }
 
 #Preview {
     MainTabView()
+        .environmentObject(NotificationRouter.shared)
 }
