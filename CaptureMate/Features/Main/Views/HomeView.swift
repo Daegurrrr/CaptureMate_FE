@@ -38,13 +38,6 @@ struct HomeView: View {
 
         return VStack(spacing: 0) {
             HomeHeaderView()
-
-            VStack(spacing: 0) {
-                SearchBarView()
-
-                Spacer()
-                    .frame(height: 16)
-            }
             .background(Color.white)
 
             ScrollView {
