@@ -9,14 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
-
-    let summary = CaptureSummary(
-        totalCount: 5,
-        placeCount: 3,
-        couponCount: 1,
-        otherCount: 1
-    )
-
+    
     let actions: [RecommendedAction] = [
         RecommendedAction(
             icon: "hourglass",
@@ -34,9 +27,16 @@ struct HomeView: View {
             subtitle: "신사 몬차치 팝업 → ~4월 30일"
         )
     ]
-
+    
     var body: some View {
-        VStack(spacing: 0) {
+        let summary = CaptureSummary(
+            totalCount: viewModel.todayScreenshotCount,
+            placeCount: 0,
+            couponCount: 0,
+            otherCount: 0
+        )
+
+        return VStack(spacing: 0) {
             HomeHeaderView()
 
             VStack(spacing: 0) {
@@ -80,6 +80,7 @@ struct HomeView: View {
         .background(Color.white)
         .onAppear {
             viewModel.loadRecentScreenshots()
+            viewModel.loadTodayScreenshotCount()
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -87,6 +88,7 @@ struct HomeView: View {
             )
         ) { _ in
             viewModel.loadRecentScreenshots()
+            viewModel.loadTodayScreenshotCount()
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -94,6 +96,8 @@ struct HomeView: View {
             )
         ) { _ in
             viewModel.loadRecentScreenshots()
+            viewModel.loadTodayScreenshotCount()
         }
     }
+    
 }

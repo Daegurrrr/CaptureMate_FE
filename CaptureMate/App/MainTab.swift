@@ -10,7 +10,5 @@ import SwiftUI
 enum MainTab {
     case home
     case category
-    case add
-    case map
     case my
 }

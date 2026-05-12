@@ -5,7 +5,6 @@
 //  Created by Codex on 5/10/26.
 //
 
-import Foundation
 import UIKit
 import UserNotifications
 
@@ -14,78 +13,16 @@ final class LocalNotificationScheduler {
 
     private let notificationCenter: UNUserNotificationCenter
     private let dailyCaptureCheckIdentifier = "daily-capture-check"
-    private let initialPermissionRequestKey = "hasRequestedInitialNotificationPermission"
 
     private init(notificationCenter: UNUserNotificationCenter = .current()) {
         self.notificationCenter = notificationCenter
     }
 
-    var hasRequestedInitialPermission: Bool {
-        UserDefaults.standard.bool(forKey: initialPermissionRequestKey)
-    }
-
-    func requestInitialPermissionAfterSignUp(completion: @escaping (Bool) -> Void) {
-        guard !hasRequestedInitialPermission else {
-            checkAuthorizationStatus(completion: completion)
-            return
-        }
-
-        UserDefaults.standard.set(true, forKey: initialPermissionRequestKey)
-
-        notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] granted, error in
-            if let error {
-                print("Local notification authorization failed: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    completion(false)
-                }
-                return
-            }
-
-            if granted {
-                self?.scheduleDailyCaptureCheckNotification()
-            }
-
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-    }
-
     func scheduleIfAlreadyAllowed() {
-        notificationCenter.getNotificationSettings { [weak self] settings in
-            switch settings.authorizationStatus {
-            case .authorized, .provisional, .ephemeral:
-                self?.scheduleDailyCaptureCheckNotification()
-            default:
-                break
-            }
+        NotificationPermissionManager.shared.checkAuthorizationStatus { [weak self] isAllowed in
+            guard isAllowed else { return }
+            self?.scheduleDailyCaptureCheckNotification()
         }
-    }
-
-    func checkAuthorizationStatus(completion: @escaping (Bool) -> Void) {
-        notificationCenter.getNotificationSettings { settings in
-            let isAllowed: Bool
-
-            switch settings.authorizationStatus {
-            case .authorized, .provisional, .ephemeral:
-                isAllowed = true
-            default:
-                isAllowed = false
-            }
-
-            DispatchQueue.main.async {
-                completion(isAllowed)
-            }
-        }
-    }
-
-    func openAppNotificationSettings() {
-        guard let settingsURL = URL(string: UIApplication.openSettingsURLString),
-              UIApplication.shared.canOpenURL(settingsURL) else {
-            return
-        }
-
-        UIApplication.shared.open(settingsURL)
     }
 
     func resetBadge() {
@@ -94,8 +31,10 @@ final class LocalNotificationScheduler {
         }
     }
 
-    private func scheduleDailyCaptureCheckNotification() {
-        notificationCenter.removePendingNotificationRequests(withIdentifiers: [dailyCaptureCheckIdentifier])
+    func scheduleDailyCaptureCheckNotification() {
+        notificationCenter.removePendingNotificationRequests(
+            withIdentifiers: [dailyCaptureCheckIdentifier]
+        )
 
         let content = UNMutableNotificationContent()
         content.title = "새로운 캡쳐를 확인해보세요"
@@ -103,24 +42,25 @@ final class LocalNotificationScheduler {
         content.sound = .default
         content.badge = 1
         content.userInfo = [
-            "destination": "add"
+            "destination": "home"
         ]
-        
-        
-        // 알림 바로 테스트하고 싶으면 아래의 테스트 코드로 대체해서 실행
-//        var dateComponents = DateComponents()
-//        dateComponents.hour = 22
-//        dateComponents.minute = 0
-//
-//        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        
-        // 10초 뒤 알람 테스트용
-        let trigger = UNTimeIntervalNotificationTrigger(
-            timeInterval: 10,
-            repeats: false
+
+        // 실제 배포용: 매일 밤 10시
+        var dateComponents = DateComponents()
+        dateComponents.hour = 22
+        dateComponents.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: dateComponents,
+            repeats: true
         )
-        
-        
+
+        // 테스트용: 10초 뒤 알림
+//        let trigger = UNTimeIntervalNotificationTrigger(
+//            timeInterval: 10,
+//            repeats: false
+//        )
+
         let request = UNNotificationRequest(
             identifier: dailyCaptureCheckIdentifier,
             content: content,

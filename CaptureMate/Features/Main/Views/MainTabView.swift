@@ -27,32 +27,12 @@ struct MainTabView: View {
                 }
                 .tag(MainTab.category)
 
-            AddView()
-                .tabItem {
-                    Image(systemName: "plus")
-                    Text("Add")
-                }
-                .tag(MainTab.add)
-
-            Text("Map")
-                .tabItem {
-                    Image(systemName: "map.fill")
-                    Text("Map")
-                }
-                .tag(MainTab.map)
-
             Text("My")
                 .tabItem {
                     Image(systemName: "person.fill")
                     Text("My")
                 }
                 .tag(MainTab.my)
-        }
-        .onReceive(notificationRouter.$shouldOpenAddView) { shouldOpenAddView in
-            guard shouldOpenAddView else { return }
-
-            selectedTab = .add
-            notificationRouter.markAddViewOpened()
         }
     }
 }

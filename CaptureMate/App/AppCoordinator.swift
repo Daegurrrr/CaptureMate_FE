@@ -11,8 +11,6 @@ final class AppCoordinator: ObservableObject {
     @Published var selectedTab: MainTab = .home
     @Published var homePath = NavigationPath()
     @Published var categoryPath = NavigationPath()
-    @Published var addPath = NavigationPath()
-    @Published var mapPath = NavigationPath()
     @Published var myPath = NavigationPath()
 
     func push(_ route: AppRoute, on tab: MainTab) {
@@ -21,10 +19,6 @@ final class AppCoordinator: ObservableObject {
             homePath.append(route)
         case .category:
             categoryPath.append(route)
-        case .add:
-            addPath.append(route)
-        case .map:
-            mapPath.append(route)
         case .my:
             myPath.append(route)
         }
@@ -36,10 +30,6 @@ final class AppCoordinator: ObservableObject {
             if !homePath.isEmpty { homePath.removeLast() }
         case .category:
             if !categoryPath.isEmpty { categoryPath.removeLast() }
-        case .add:
-            if !addPath.isEmpty { addPath.removeLast() }
-        case .map:
-            if !mapPath.isEmpty { mapPath.removeLast() }
         case .my:
             if !myPath.isEmpty { myPath.removeLast() }
         }
@@ -51,10 +41,6 @@ final class AppCoordinator: ObservableObject {
             homePath = NavigationPath()
         case .category:
             categoryPath = NavigationPath()
-        case .add:
-            addPath = NavigationPath()
-        case .map:
-            mapPath = NavigationPath()
         case .my:
             myPath = NavigationPath()
         }
