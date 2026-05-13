@@ -35,11 +35,12 @@ struct CategoryPhotoGridView: View {
             .frame(maxWidth: .infinity)
             .padding(.top, 80)
         } else {
-            LazyVGrid(columns: columns, spacing: 12) {
+            LazyVGrid(columns: columns, alignment: .center, spacing: 12) {
                 ForEach(items) { item in
                     Image(uiImage: item.image)
                         .resizable()
                         .scaledToFit()
+                        .frame(maxWidth: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .onTapGesture {
                             selectedPhoto = item

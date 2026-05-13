@@ -17,10 +17,16 @@ struct PhotoDetailView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            Image(uiImage: photo.image)
-                .resizable()
-                .scaledToFit()
-                .ignoresSafeArea()
+            VStack {
+                Spacer()
+                
+                Image(uiImage: photo.image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 12)
+                
+                Spacer()
+            }
 
             VStack {
                 HStack {

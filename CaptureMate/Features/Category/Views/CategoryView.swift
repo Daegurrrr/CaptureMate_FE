@@ -36,7 +36,6 @@ struct CategoryView: View {
                     .fullScreenCover(item: $selectedPhoto) { photo in
                         PhotoDetailView(photo: photo)
                     }
-                        .padding(.leading, 16)
                         .padding(.top, 20)
                         .padding(.horizontal, 16)
                         .padding(.bottom, 100)
