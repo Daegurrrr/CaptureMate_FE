@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MyView: View {
+    @EnvironmentObject private var session: AppSession
+    
     @StateObject private var viewModel = MyViewModel()
 
     var body: some View {
@@ -43,7 +45,9 @@ struct MyView: View {
         VStack(spacing: 0) {
             ForEach(viewModel.menuItems) { item in
                 Button {
-                    viewModel.handleMenuTap(item)
+                    viewModel.handleMenuTap(item) {
+                        session.logout()
+                    }
                 } label: {
                     HStack(spacing: 18) {
                         Image(systemName: item.icon)

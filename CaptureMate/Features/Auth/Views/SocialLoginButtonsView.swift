@@ -28,8 +28,6 @@ struct SocialLoginButtonsView: View {
             googleLoginButton
 
             kakaoLoginButton
-
-            naverLoginButton
         }
     }
     
@@ -58,7 +56,7 @@ struct SocialLoginButtonsView: View {
 
     private var googleLoginButton: some View {
         Button {
-            print("Google 로그인")
+            viewModel.loginWithGoogle()
         } label: {
             HStack(spacing: 10) {
                 Image("google_logo")
@@ -83,7 +81,7 @@ struct SocialLoginButtonsView: View {
 
     private var kakaoLoginButton: some View {
         Button {
-            print("Kakao 로그인")
+            viewModel.loginWithKakao()
         } label: {
             HStack(spacing: 10) {
                 Image("kakao_logo")
@@ -98,30 +96,6 @@ struct SocialLoginButtonsView: View {
             .frame(maxWidth: .infinity)
             .frame(height: buttonHeight)
             .background(Color(red: 254/255, green: 229/255, blue: 0/255))
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var naverLoginButton: some View {
-        Button {
-            print("Naver 로그인")
-        } label: {
-            HStack(spacing: 10) {
-                Image("naver_logo")
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundColor(.white)
-                    .frame(width: 18, height: 18)
-
-                Text("네이버로 로그인")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: buttonHeight)
-            .background(Color(red: 3/255, green: 199/255, blue: 90/255))
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         }
         .buttonStyle(.plain)

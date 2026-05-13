@@ -18,6 +18,8 @@ final class CategoryViewModel: ObservableObject {
     //******** 실제 분류 모델 돌리고 나서는 사용하지 않을 부분(테스트용) ********//
     @Published var photos: [CategoryPhotoItem] = []
     
+    let startDate = UserDefaults.standard.object(forKey: "screenshotStartDate") as? Date
+    
     func requestPhotoPermissionAndLoad() {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
                 if status == .authorized || status == .limited {
@@ -28,10 +30,20 @@ final class CategoryViewModel: ObservableObject {
     
     private func loadScreenshots() {
         let fetchOptions = PHFetchOptions()
+        
         fetchOptions.sortDescriptors = [
             NSSortDescriptor(key: "creationDate", ascending: false)
         ]
-
+        
+        if let startDate = UserDefaults.standard.object(
+            forKey: "screenshotStartDate"
+        ) as? Date {
+            fetchOptions.predicate = NSPredicate(
+                format: "creationDate >= %@",
+                startDate as NSDate
+            )
+        }
+        
         let screenshotAlbum = PHAssetCollection.fetchAssetCollections(
             with: .smartAlbum,
             subtype: .smartAlbumScreenshots,

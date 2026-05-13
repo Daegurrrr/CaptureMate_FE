@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		BA1178362F8A4C3C00EA9EA8 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = BA1178352F8A4C3C00EA9EA8 /* GoogleSignIn */; };
 		BA1178382F8A4C3C00EA9EA8 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BA1178372F8A4C3C00EA9EA8 /* GoogleSignInSwift */; };
+		BA93C5272FB44C0800DD761E /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = BA93C5262FB44C0800DD761E /* KakaoSDKAuth */; };
+		BA93C5292FB44C0800DD761E /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = BA93C5282FB44C0800DD761E /* KakaoSDKUser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,9 +36,22 @@
 		BAE46DD62F837C1800C36682 /* CaptureMateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CaptureMateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BA0FDE232FB44895005FC571 /* Exceptions for "CaptureMate" folder in "CaptureMate" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BAE46DBB2F837C1700C36682 /* CaptureMate */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BAE46DBE2F837C1700C36682 /* CaptureMate */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BA0FDE232FB44895005FC571 /* Exceptions for "CaptureMate" folder in "CaptureMate" target */,
+			);
 			path = CaptureMate;
 			sourceTree = "<group>";
 		};
@@ -57,8 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA93C5292FB44C0800DD761E /* KakaoSDKUser in Frameworks */,
 				BA1178362F8A4C3C00EA9EA8 /* GoogleSignIn in Frameworks */,
 				BA1178382F8A4C3C00EA9EA8 /* GoogleSignInSwift in Frameworks */,
+				BA93C5272FB44C0800DD761E /* KakaoSDKAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +138,8 @@
 			packageProductDependencies = (
 				BA1178352F8A4C3C00EA9EA8 /* GoogleSignIn */,
 				BA1178372F8A4C3C00EA9EA8 /* GoogleSignInSwift */,
+				BA93C5262FB44C0800DD761E /* KakaoSDKAuth */,
+				BA93C5282FB44C0800DD761E /* KakaoSDKUser */,
 			);
 			productName = CaptureMate;
 			productReference = BAE46DBC2F837C1700C36682 /* CaptureMate.app */;
@@ -206,6 +225,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				BA93C5252FB44C0800DD761E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				BA93C52E2FB45C0100DD761E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BAE46DBD2F837C1700C36682 /* Products */;
@@ -411,6 +432,7 @@
 				DEVELOPMENT_TEAM = 2UD39YQF49;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CaptureMate/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "캡쳐 이미지를 저장하고 분석하기 위해 사진 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -441,6 +463,7 @@
 				DEVELOPMENT_TEAM = 9D9T6SL87Q;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CaptureMate/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "캡쳐 이미지를 저장하고 분석하기 위해 사진 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -578,6 +601,22 @@
 				minimumVersion = 9.1.0;
 			};
 		};
+		BA93C5252FB44C0800DD761E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.27.3;
+			};
+		};
+		BA93C52E2FB45C0100DD761E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.13.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -590,6 +629,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		BA93C5262FB44C0800DD761E /* KakaoSDKAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA93C5252FB44C0800DD761E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKAuth;
+		};
+		BA93C5282FB44C0800DD761E /* KakaoSDKUser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA93C5252FB44C0800DD761E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKUser;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

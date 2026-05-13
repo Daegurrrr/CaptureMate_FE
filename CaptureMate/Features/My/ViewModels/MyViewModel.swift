@@ -9,7 +9,9 @@ import Foundation
 
 @MainActor
 final class MyViewModel: ObservableObject {
-    @Published var userName: String = "@@"
+    @Published var userName: String = "사용자"
+    
+    private let authService = AuthService()
 
     let menuItems: [MyMenuItem] = [
         MyMenuItem(title: "프로필", icon: "star", type: .profile),
@@ -22,7 +24,10 @@ final class MyViewModel: ObservableObject {
         MyMenuItem(title: "탈퇴하기", icon: "star", type: .withdraw)
     ]
 
-    func handleMenuTap(_ item: MyMenuItem) {
+    func handleMenuTap(
+        _ item: MyMenuItem,
+        onLogout: @escaping () -> Void
+    ) {
         switch item.type {
         case .profile:
             print("프로필 이동")
@@ -43,10 +48,27 @@ final class MyViewModel: ObservableObject {
             print("기타 이동")
 
         case .logout:
-            print("로그아웃")
+            logout(onLogout: onLogout)
 
         case .withdraw:
             print("탈퇴하기")
+        }
+    }
+    
+    private func logout(onLogout: @escaping () -> Void) {
+        Task {
+            do {
+                try await authService.logout()
+                print("Logout Success")
+            } catch {
+                print("Logout Failed:", error.localizedDescription)
+            }
+            
+            UserDefaults.standard.removeObject(forKey: "accessToken")
+            UserDefaults.standard.removeObject(forKey: "refreshToken")
+            UserDefaults.standard.removeObject(forKey: "userId")
+
+            onLogout()
         }
     }
 }
