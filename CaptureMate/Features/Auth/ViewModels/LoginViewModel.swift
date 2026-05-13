@@ -19,11 +19,37 @@ final class LoginViewModel: ObservableObject {
 
     private let authService = AuthService()
 
-    func loginWithEmail(userId: String, password: String) {
-        print("일반 로그인 시도:", userId)
+    func loginWithEmail(
+        userId: String,
+        password: String
+    ) {
+        Task {
 
-        // TODO: 일반 로그인 API 연결 후 성공 시 true 처리
-        isLoggedIn = true
+            isLoading = true
+            errorMessage = nil
+
+            do {
+
+                let response = try await authService.login(
+                    loginId: userId,
+                    password: password
+                )
+
+                print("일반 로그인 성공:", response)
+
+                saveLoginResponse(response)
+
+                isLoggedIn = true
+
+            } catch {
+
+                print("일반 로그인 실패:", error.localizedDescription)
+
+                errorMessage = error.localizedDescription
+            }
+
+            isLoading = false
+        }
     }
     
     func loginWithApple(identityToken: String) {

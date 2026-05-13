@@ -96,6 +96,13 @@ struct LoginView: View {
 
                 Spacer().frame(height: 56)
 
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 13))
+                        .foregroundColor(.red)
+                        .padding(.horizontal, 24)
+                }
+                
                 Button {
                     viewModel.loginWithEmail(
                         userId: userId,

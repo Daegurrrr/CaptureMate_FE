@@ -7,6 +7,16 @@
 
 import Foundation
 
+struct LoginRequest: Encodable {
+    let loginId: String
+    let password: String
+
+    enum CodingKeys: String, CodingKey {
+        case loginId = "login_id"
+        case password
+    }
+}
+
 struct GoogleLoginRequest: Encodable {
     let idToken: String
 
@@ -20,5 +30,19 @@ struct KakaoLoginRequest: Encodable {
 
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
+    }
+}
+
+struct RegisterRequest: Encodable {
+    let loginId: String
+    let password: String
+    let username: String
+    let email: String
+
+    enum CodingKeys: String, CodingKey {
+        case loginId = "login_id"
+        case password
+        case username
+        case email
     }
 }
