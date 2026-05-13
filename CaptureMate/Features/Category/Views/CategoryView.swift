@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CategoryView: View {
     @StateObject private var viewModel = CategoryViewModel()
+    @State private var selectedPhoto: CategoryPhotoItem?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -28,7 +29,14 @@ struct CategoryView: View {
 //                    CategoryPhotoGridView(items: viewModel.filteredItems)
                     
                     // 임시로 필터링 없이 전체 사진 보여줌
-                    CategoryPhotoGridView(items: viewModel.photos)
+                    CategoryPhotoGridView(
+                        items: viewModel.photos,
+                        selectedPhoto: $selectedPhoto
+                    )
+                    .fullScreenCover(item: $selectedPhoto) { photo in
+                        PhotoDetailView(photo: photo)
+                    }
+                        .padding(.leading, 16)
                         .padding(.top, 20)
                         .padding(.horizontal, 16)
                         .padding(.bottom, 100)

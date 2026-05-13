@@ -13,6 +13,7 @@ struct CategoryPhotoGridView: View {
     
     // 임시로 내 갤러리 모든 사진 보여주는 코드
     let items: [CategoryPhotoItem]
+    @Binding var selectedPhoto: CategoryPhotoItem?
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -40,6 +41,9 @@ struct CategoryPhotoGridView: View {
                         .resizable()
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .onTapGesture {
+                            selectedPhoto = item
+                        }
 //                    Image(item.imageName)
 //                        .resizable()
 //                        .scaledToFill()
