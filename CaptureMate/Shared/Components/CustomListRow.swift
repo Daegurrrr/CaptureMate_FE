@@ -24,10 +24,10 @@ struct CaptureListRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
 
-                Text(item.title)
+                Text(item.title ?? "제목 없음")
                     .fontWeight(.medium)
 
-                Text(item.subtitle)
+                Text(item.summary ?? "제목 없음")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 

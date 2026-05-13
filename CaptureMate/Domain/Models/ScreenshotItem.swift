@@ -8,15 +8,29 @@
 import Foundation
 
 struct ScreenshotItem: Identifiable, Hashable {
-
-    let id = UUID()
-
-    let title: String
-    let subtitle: String
-
+    let id: UUID
+    let imageName: String
     let category: CaptureCategory
+    let createdAt: Date
+    let extractedText: String?
+    let title: String?
+    let summary: String?
 
-    // OCR에서 추출된 텍스트
-    let extractedText: String
-
+    init(
+        id: UUID = UUID(),
+        imageName: String,
+        category: CaptureCategory,
+        createdAt: Date = Date(),
+        extractedText: String? = nil,
+        title: String? = nil,
+        summary: String? = nil
+    ) {
+        self.id = id
+        self.imageName = imageName
+        self.category = category
+        self.createdAt = createdAt
+        self.extractedText = extractedText
+        self.title = title
+        self.summary = summary
+    }
 }

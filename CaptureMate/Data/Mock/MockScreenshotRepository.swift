@@ -12,31 +12,31 @@ struct MockScreenshotRepository {
     static let items: [ScreenshotItem] = [
 
         ScreenshotItem(
-            title: "성수 카페 캡처",
-            subtitle: "서울 성동구 성수동",
+            imageName: "sample_cature_1.png",
             category: .place,
-            extractedText: "성수 카페 추천 서울 성동구 성수동"
+            title: "성수 카페 캡처",
+            summary: "성수 카페 추천 서울 성동구 성수동"
         ),
 
         ScreenshotItem(
-            title: "무신사 할인 이벤트",
-            subtitle: "3월 31일까지 할인",
-            category: .discount,
-            extractedText: "무신사 최대 30% 할인 3월 31일까지"
-        ),
-
-        ScreenshotItem(
-            title: "전시회 일정",
-            subtitle: "4월 5일 오후 2시",
+            imageName: "sample_cature_2.png",
             category: .schedule,
-            extractedText: "전시회 4월 5일 오후 2시 시작"
+            title: "무신사 할인 이벤트",
+            summary: "무신사 최대 30% 할인 3월 31일까지"
         ),
 
         ScreenshotItem(
-            title: "맛집 정리",
-            subtitle: "친구 추천 맛집",
+            imageName: "sample_cature_3.png",
+            category: .schedule,
+            title: "전시회 일정",
+            summary: "전시회 4월 5일 오후 2시 시작"
+        ),
+
+        ScreenshotItem(
+            imageName: "sample_cature_4.png",
             category: .memo,
-            extractedText: "친구가 추천한 맛집 리스트"
+            title: "맛집 정리",
+            summary: "친구가 추천한 맛집 리스트"
         )
 
     ]

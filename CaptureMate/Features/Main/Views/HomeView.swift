@@ -37,8 +37,7 @@ struct HomeView: View {
         )
 
         return VStack(spacing: 0) {
-            HomeHeaderView()
-            .background(Color.white)
+            AppHeaderView(title: "Home")
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {

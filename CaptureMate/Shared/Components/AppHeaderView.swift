@@ -1,25 +1,18 @@
 //
-//  HomeHeaderView.swift
+//  AppHeaderView.swift
 //  CaptureMate
 //
-//  Created by 허채윤 on 4/11/26.
+//  Created by 허채윤 on 5/13/26.
 //
 
 import SwiftUI
 
-//
-//  HomeHeaderView.swift
-//  CaptureMate
-//
-//  Created by 허채윤 on 4/11/26.
-//
+struct AppHeaderView: View {
+    let title: String
 
-import SwiftUI
-
-struct HomeHeaderView: View {
     var body: some View {
         ZStack {
-            Text("Home")
+            Text(title)
                 .font(.system(size: 20, weight: .semibold))
 
             HStack {
@@ -37,8 +30,4 @@ struct HomeHeaderView: View {
         .padding(.vertical, 14)
         .background(Color.white)
     }
-}
-
-#Preview {
-    HomeHeaderView()
 }
