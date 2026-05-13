@@ -14,8 +14,6 @@ struct CustomTabBar: View {
         HStack {
             tabItem(icon: "diamond.fill", title: "Home", tab: .home)
             tabItem(icon: "circle.grid.2x2.fill", title: "Category", tab: .category)
-            tabItem(icon: "plus", title: "Add", tab: .add)
-            tabItem(icon: "star.fill", title: "Map", tab: .map)
             tabItem(icon: "square.fill", title: "My", tab: .my)
         }
         .padding(.horizontal, 16)

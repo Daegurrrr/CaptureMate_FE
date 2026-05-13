@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @EnvironmentObject private var notificationRouter: NotificationRouter
     @State private var selectedTab: MainTab = .home
 
     var body: some View {
@@ -26,21 +27,7 @@ struct MainTabView: View {
                 }
                 .tag(MainTab.category)
 
-            AddView()
-                .tabItem {
-                    Image(systemName: "plus")
-                    Text("Add")
-                }
-                .tag(MainTab.add)
-
-            Text("Map")
-                .tabItem {
-                    Image(systemName: "map.fill")
-                    Text("Map")
-                }
-                .tag(MainTab.map)
-
-            Text("My")
+            MyView()
                 .tabItem {
                     Image(systemName: "person.fill")
                     Text("My")
@@ -52,4 +39,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .environmentObject(NotificationRouter.shared)
 }
