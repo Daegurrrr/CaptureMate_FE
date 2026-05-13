@@ -10,7 +10,4 @@ import Foundation
 enum AppRoute: Hashable {
     case captureDetail(item: ScreenshotItem)
     case result(item: ScreenshotItem)
-    case place(placeInfo: PlaceInfo)
-    case coupon(couponInfo: CouponInfo)
-    case calendar(scheduleInfo: ScheduleInfo)
 }

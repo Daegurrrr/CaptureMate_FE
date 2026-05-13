@@ -12,43 +12,20 @@ struct MyView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            headerView
-
-            profileSection
-
-            menuList
-
-            Spacer()
-        }
-        .background(Color.white)
-    }
-
-    private var headerView: some View {
-        ZStack {
-            Text("My")
-                .font(.system(size: 18, weight: .semibold))
-
-            HStack {
+            AppHeaderView(title: "My")
+            
+            VStack(spacing: 0) {
+                profileSection
+                menuList
                 Spacer()
-
-                Button {
-                    print("알림 버튼 클릭")
-                } label: {
-                    Image(systemName: "bell")
-                        .font(.system(size: 22))
-                        .foregroundColor(.black)
-                }
             }
-            .padding(.horizontal, 22)
+            .background(Color(red: 245/255, green: 244/255, blue: 249/255))
         }
-        .frame(height: 56)
-        .overlay(alignment: .bottom) {
-            Divider()
-        }
+        .background(Color.white.ignoresSafeArea(edges: .top))
     }
 
     private var profileSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("프로필")
                 .font(.system(size: 15))
                 .foregroundColor(.gray)

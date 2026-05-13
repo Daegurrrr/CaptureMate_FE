@@ -20,7 +20,7 @@ struct MainTabView: View {
                 }
                 .tag(MainTab.home)
 
-            Text("Category")
+            CategoryView()
                 .tabItem {
                     Image(systemName: "square.grid.2x2.fill")
                     Text("Category")
