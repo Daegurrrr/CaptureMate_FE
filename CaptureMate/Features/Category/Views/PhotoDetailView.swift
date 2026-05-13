@@ -69,18 +69,19 @@ struct PhotoDetailView: View {
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 24))
                 .offset(y: showCaption ? 0 : 170)
-                .gesture(
-                    DragGesture()
-                        .onEnded { value in
-                            if value.translation.height < -40 {
-                                showCaption = true
-                            } else if value.translation.height > 40 {
-                                showCaption = false
-                            }
-                        }
-                )
                 .animation(.spring(), value: showCaption)
             }
         }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.height < -40 {
+                        showCaption = true
+                    } else if value.translation.height > 40 {
+                        showCaption = false
+                    }
+                }
+        )
     }
 }
