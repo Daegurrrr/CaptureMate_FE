@@ -29,7 +29,8 @@ CaptureMate 프론트엔드 레포입니다!
 1. 저장소를 clone 합니다.
 
 ```bash
-git clone <repo-url>```
+git clone <repo-url>
+```
 
 2. Xcode에서 프로젝트를 엽니다.
 `CaptureMate.xcodeproj`
@@ -42,18 +43,7 @@ git clone <repo-url>```
 
 5. 시뮬레이터를 선택하고 Run 합니다.
 
-
-## Requirements
-- Xcode 16+
-- iOS 18+
-- SwiftLint enabled via Swift Package Plugin
-
-## Getting Started
-1. 저장소를 clone 합니다.
-2. `CaptureMate.xcodeproj`를 엽니다.
-3. Xcode가 package dependencies를 resolve할 때까지 기다립니다.
-4. 필요한 경우 `Config/Secrets.example.xcconfig`를 참고해 로컬용 `Secrets.xcconfig`를 생성합니다.
-5. 시뮬레이터를 선택하고 Run 합니다.
+---
 
 ## Project Structure
 CaptureMate_FE
@@ -98,6 +88,8 @@ CaptureMate_FE
 ├── CaptureMateUITests          # UI tests
 └── README.md
 
+---
+
 ## Architecture Overview
 The app follows a layered architecture:
 
@@ -108,10 +100,14 @@ View → ViewModel → Repository → APIClient → Backend
 - **Repository**: Business logic and data fetching
 - **APIClient**: Networking layer communicating with FastAPI backend
 
+---
+
 ## Branch Strategy
 - `main`: 배포/기준 브랜치
 - `develop`: 개발 기준 브랜치
 - `feature/#이슈번호`: 기능 개발 브랜치
+
+---
 
 ## Development Flow
 
@@ -120,6 +116,8 @@ feature branch → develop → main
 - `main` : production branch
 - `develop` : development branch
 - `feature/#issue-number` : feature implementation
+
+---
 
 ## Conventions
 - View에서 API 직접 호출 금지
