@@ -226,7 +226,6 @@
 			packageReferences = (
 				BA1178342F8A4C3C00EA9EA8 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				BA93C5252FB44C0800DD761E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
-				BA93C52E2FB45C0100DD761E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BAE46DBD2F837C1700C36682 /* Products */;
@@ -607,14 +606,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.27.3;
-			};
-		};
-		BA93C52E2FB45C0100DD761E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.13.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
