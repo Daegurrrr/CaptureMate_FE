@@ -46,6 +46,7 @@ git clone <repo-url>
 ---
 
 ## Project Structure
+```text
 CaptureMate_FE
 ├── CaptureMate.xcodeproj       # Xcode project file
 ├── CaptureMate                 # Main app source code
@@ -87,6 +88,7 @@ CaptureMate_FE
 ├── CaptureMateTests            # Unit tests
 ├── CaptureMateUITests          # UI tests
 └── README.md
+```
 
 ---
 
