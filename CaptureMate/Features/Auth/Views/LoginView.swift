@@ -5,13 +5,6 @@
 //  Created by 허채윤 on 4/11/26.
 //
 
-//
-//  LoginView.swift
-//  CaptureMate
-//
-//  Created by 허채윤 on 4/11/26.
-//
-
 import SwiftUI
 import AuthenticationServices
 
@@ -52,6 +45,8 @@ struct LoginView: View {
                         .font(.system(size: 17))
                         .padding(.horizontal, 18)
                         .frame(height: 58)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 .background(Color(.systemGray6))
                 .clipShape(RoundedRectangle(cornerRadius: 24))
@@ -80,7 +75,10 @@ struct LoginView: View {
                     Text(" | ")
                         .foregroundColor(.secondary)
 
-                    Button("회원가입") {
+                    NavigationLink {
+                        SignUpView()
+                    } label: {
+                        Text("회원가입")
                     }
                 }
                 .font(.system(size: 15, weight: .medium))
@@ -90,8 +88,18 @@ struct LoginView: View {
 
                 Spacer().frame(height: 56)
 
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 13))
+                        .foregroundColor(.red)
+                        .padding(.horizontal, 24)
+                }
+
                 Button {
-                    session.login()
+                    viewModel.loginWithEmail(
+                        userId: userId,
+                        password: password
+                    )
                 } label: {
                     Text("로그인")
                         .font(.system(size: 18, weight: .semibold))
@@ -120,6 +128,10 @@ struct LoginView: View {
         .background(Color(.systemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(false)
+        .onChange(of: viewModel.isLoggedIn) { _, isLoggedIn in
+            guard isLoggedIn else { return }
+            session.login()
+        }
     }
 }
 

@@ -6,9 +6,15 @@
 //
 
 import SwiftUI
+import KakaoSDKCommon
+import KakaoSDKAuth
+import GoogleSignIn
 
 @main
 struct CaptureMateApp: App {
+    init() {
+        KakaoSDK.initSDK(appKey: Secrets.value(for: "KAKAO_NATIVE_APP_KEY"))
+    }
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @StateObject private var session = AppSession()
@@ -19,6 +25,14 @@ struct CaptureMateApp: App {
             RootView()
                 .environmentObject(session)
                 .environmentObject(notificationRouter)
+                .onOpenURL { url in
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                        return
+                    }
+
+                    GIDSignIn.sharedInstance.handle(url)
+                }
                 .onAppear {
                     LocalNotificationScheduler.shared.scheduleIfAlreadyAllowed()
                     LocalNotificationScheduler.shared.resetBadge()

@@ -8,16 +8,20 @@
 import SwiftUI
 
 struct SignUpView: View {
-    @EnvironmentObject private var session: AppSession
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var viewModel = SignUpViewModel()
 
-    @State private var name: String = ""
+    @State private var loginId: String = ""
+    @State private var username: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
-
-    @State private var showsPermissionAlert = false
-    @State private var showScreenshotStartDateDialog = false
-
-    private let screenshotStartDateKey = "screenshotStartDate"
+    
+    private var isFormValid: Bool {
+        !loginId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
         VStack(spacing: 16) {
@@ -25,125 +29,76 @@ struct SignUpView: View {
                 .font(.system(size: 28, weight: .bold))
                 .padding(.top, 40)
 
-            TextField("이름", text: $name)
+            TextField("아이디", text: $loginId)
+                .textFieldStyle(.roundedBorder)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+
+            TextField("이름", text: $username)
                 .textFieldStyle(.roundedBorder)
 
             TextField("이메일", text: $email)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.emailAddress)
-                .autocapitalization(.none)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
 
             SecureField("비밀번호", text: $password)
                 .textFieldStyle(.roundedBorder)
+                .onChange(of: password) { _, newValue in
+                    var result = ""
+
+                    for char in newValue {
+                        if (result + String(char)).utf8.count <= 72 {
+                            result.append(char)
+                        } else {
+                            break
+                        }
+                    }
+                    password = result
+                }
+            
+            Text("비밀번호는 최대 72바이트까지 입력할 수 있어요.")
+                .font(.system(size: 12))
+                .foregroundColor(.gray)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .font(.system(size: 13))
+                    .foregroundColor(.red)
+            }
 
             Button {
-                requestPermissionsAfterSignUp()
+                viewModel.register(
+                    loginId: loginId,
+                    password: password,
+                    username: username,
+                    email: email
+                )
             } label: {
-                Text("회원가입 완료")
+                Text(viewModel.isLoading ? "가입 중..." : "회원가입 완료")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 54)
-                    .background(Color.blue)
+                    .background(
+                        isFormValid ? Color.blue : Color.gray.opacity(0.4)
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
+            .disabled(
+                viewModel.isLoading || !isFormValid
+            )
             .padding(.top, 8)
 
             Spacer()
         }
         .padding(.horizontal, 24)
-        .alert("권한 허용이 필요해요", isPresented: $showsPermissionAlert) {
-            Button("나중에") {
-                session.login()
-            }
-
-            Button("설정으로 이동") {
-                session.login()
-                NotificationPermissionManager.shared.openAppNotificationSettings()
-            }
-        } message: {
-            Text("알림과 사진 접근 권한을 허용하면 새로운 캡쳐를 놓치지 않고 확인할 수 있어요.")
-        }
-        .confirmationDialog(
-            "언제부터 캡쳐를 가져올까요?",
-            isPresented: $showScreenshotStartDateDialog,
-            titleVisibility: .visible
-        ) {
-            Button("오늘") {
-                saveScreenshotStartDate(
-                    Calendar.current.startOfDay(for: Date())
-                )
-            }
-
-            Button("3일 전부터") {
-                let date = Calendar.current.date(
-                    byAdding: .day,
-                    value: -3,
-                    to: Date()
-                ) ?? Date()
-
-                saveScreenshotStartDate(date)
-            }
-
-            Button("일주일 전부터") {
-                let date = Calendar.current.date(
-                    byAdding: .day,
-                    value: -7,
-                    to: Date()
-                ) ?? Date()
-
-                saveScreenshotStartDate(date)
-            }
-
-            Button("한 달 전부터") {
-                let date = Calendar.current.date(
-                    byAdding: .month,
-                    value: -1,
-                    to: Date()
-                ) ?? Date()
-
-                saveScreenshotStartDate(date)
-            }
-
-            Button("취소", role: .cancel) {
-                session.login()
+        .onChange(of: viewModel.isRegisterSuccess) { _, isSuccess in
+            if isSuccess {
+                dismiss()
             }
         }
     }
-
-    private func requestPermissionsAfterSignUp() {
-        NotificationPermissionManager.shared.requestInitialPermissionAfterSignUp { isNotificationAllowed in
-
-            if isNotificationAllowed {
-                LocalNotificationScheduler.shared.scheduleDailyCaptureCheckNotification()
-            }
-
-            PhotoPermissionManager.shared.requestPermission { isPhotoAllowed in
-
-                if isPhotoAllowed {
-                    showScreenshotStartDateDialog = true
-                } else {
-                    showsPermissionAlert = true
-                }
-            }
-        }
-    }
-
-    private func saveScreenshotStartDate(_ date: Date) {
-        UserDefaults.standard.set(
-            date,
-            forKey: screenshotStartDateKey
-        )
-
-        NotificationCenter.default.post(
-            name: NSNotification.Name("ScreenshotDataUpdated"),
-            object: nil
-        )
-
-        session.login()
-    }
-}
-
-#Preview {
-    SignUpView()
 }
