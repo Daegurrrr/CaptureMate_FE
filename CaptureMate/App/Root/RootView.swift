@@ -6,28 +6,53 @@
 //
 
 import SwiftUI
+import SwiftData
+import Photos
 
 struct RootView: View {
-    
     @EnvironmentObject private var session: AppSession
-    
+    @Environment(\.modelContext) private var modelContext
+
+    @State private var photoLibraryObserver: PhotoLibraryObserver?
+
+    private let photoUploadService = PhotoUploadService()
+
     var body: some View {
-        // 개발 테스트용(메인페이지부터 실행됨)
-//        MainTabView()
-        
-        // 실제 앱용
         Group {
             if session.isLoggedIn {
                 MainTabView()
+                    .task {
+                        await startPhotoUploadFlow()
+                    }
+
             } else if !session.hasSeenIntro {
                 IntroPagerView()
+
             } else {
                 AuthEntryView()
             }
         }
     }
-}
 
+    private func startPhotoUploadFlow() async {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+
+        guard status == .authorized || status == .limited else {
+            print("사진 권한 없음")
+            return
+        }
+
+        await photoUploadService.uploadNewPhotos(
+            modelContext: modelContext
+        )
+
+        if photoLibraryObserver == nil {
+            photoLibraryObserver = PhotoLibraryObserver(
+                modelContext: modelContext
+            )
+        }
+    }
+}
 
 #Preview {
     RootView()
