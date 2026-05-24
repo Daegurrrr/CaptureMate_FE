@@ -59,13 +59,6 @@ struct HomeView: View {
                     RecommendedActionCard(actions: actions)
                         .padding(.horizontal, 16)
 
-                    Text("최근 캡쳐 모아보기")
-                        .font(.system(size: 20, weight: .bold))
-                        .padding(.horizontal, 16)
-
-                    RecentCaptureSection(images: viewModel.recentScreenshots)
-                        .padding(.horizontal, 16)
-
                     Spacer(minLength: 20)
                 }
                 .padding(.top, 10)
@@ -74,7 +67,6 @@ struct HomeView: View {
         }
         .background(Color.white)
         .onAppear {
-            viewModel.loadRecentScreenshots()
             viewModel.loadTodayScreenshotCount()
             requestInitialPermissionsIfNeeded()
         }
@@ -83,7 +75,6 @@ struct HomeView: View {
                 for: UIApplication.willEnterForegroundNotification
             )
         ) { _ in
-            viewModel.loadRecentScreenshots()
             viewModel.loadTodayScreenshotCount()
         }
         .onReceive(
@@ -91,7 +82,6 @@ struct HomeView: View {
                 for: NSNotification.Name("ScreenshotDataUpdated")
             )
         ) { _ in
-            viewModel.loadRecentScreenshots()
             viewModel.loadTodayScreenshotCount()
         }
         .alert("권한 허용이 필요해요", isPresented: $showsPermissionAlert) {

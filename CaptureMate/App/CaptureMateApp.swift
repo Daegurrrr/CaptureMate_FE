@@ -6,20 +6,22 @@
 //
 
 import SwiftUI
+import SwiftData
 import KakaoSDKCommon
 import KakaoSDKAuth
 import GoogleSignIn
 
 @main
 struct CaptureMateApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    @StateObject private var session = AppSession()
+    @StateObject private var notificationRouter = NotificationRouter.shared
+
     init() {
         KakaoSDK.initSDK(appKey: Secrets.value(for: "KAKAO_NATIVE_APP_KEY"))
     }
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
-    @StateObject private var session = AppSession()
-    @StateObject private var notificationRouter = NotificationRouter.shared
-    
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -38,5 +40,9 @@ struct CaptureMateApp: App {
                     LocalNotificationScheduler.shared.resetBadge()
                 }
         }
+        .modelContainer(for: [
+            PhotoUploadRecord.self,
+            PhotoAnalysisRecord.self
+        ])
     }
 }
