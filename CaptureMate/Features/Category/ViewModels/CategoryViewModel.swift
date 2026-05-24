@@ -6,99 +6,97 @@
 //
 
 import Foundation
-
-// 분류 모델 돌린 후는 지우기
-import SwiftUI
 import Photos
+import SwiftUI
+import SwiftData
 
+@MainActor
 final class CategoryViewModel: ObservableObject {
+    @Published var photos: [CategoryPhotoItem] = []
     @Published var searchText: String = ""
     @Published var selectedCategory: CaptureCategory = .schedule
-    
-    //******** 실제 분류 모델 돌리고 나서는 사용하지 않을 부분(테스트용) ********//
-    @Published var photos: [CategoryPhotoItem] = []
-    
-    let startDate = UserDefaults.standard.object(forKey: "screenshotStartDate") as? Date
-    
-    func requestPhotoPermissionAndLoad() {
-            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
-                if status == .authorized || status == .limited {
-                    self.loadScreenshots()
-                }
+
+    var filteredItems: [CategoryPhotoItem] {
+        photos.filter { item in
+            let selectedCategoryText = categoryText(selectedCategory)
+
+            let matchesCategory = item.category == selectedCategoryText
+
+            let matchesSearch =
+                searchText.isEmpty ||
+                item.category.localizedCaseInsensitiveContains(searchText)
+
+            return matchesCategory && matchesSearch
+        }
+    }
+
+    func requestPhotoPermissionAndLoad(modelContext: ModelContext) {
+        PhotoPermissionManager.shared.requestPermission { [weak self] isAllowed in
+            guard let self else { return }
+
+            guard isAllowed else {
+                print("사진 권한 없음")
+                return
             }
-        }
-    
-    private func loadScreenshots() {
-        let fetchOptions = PHFetchOptions()
-        
-        fetchOptions.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: false)
-        ]
-        
-        if let startDate = UserDefaults.standard.object(
-            forKey: "screenshotStartDate"
-        ) as? Date {
-            fetchOptions.predicate = NSPredicate(
-                format: "creationDate >= %@",
-                startDate as NSDate
-            )
-        }
-        
-        let screenshotAlbum = PHAssetCollection.fetchAssetCollections(
-            with: .smartAlbum,
-            subtype: .smartAlbumScreenshots,
-            options: nil
-        )
 
-        guard let collection = screenshotAlbum.firstObject else {
-            return
-        }
-
-        let screenshots = PHAsset.fetchAssets(
-            in: collection,
-            options: fetchOptions
-        )
-
-        let imageManager = PHImageManager.default()
-
-        let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = false
-        requestOptions.deliveryMode = .highQualityFormat
-        requestOptions.resizeMode = .fast
-
-        var loadedPhotos: [CategoryPhotoItem] = []
-
-        screenshots.enumerateObjects { asset, _, _ in
-            imageManager.requestImage(
-                for: asset,
-                targetSize: CGSize(width: 300, height: 300),
-                contentMode: .aspectFill,
-                options: requestOptions
-            ) { image, _ in
-                if let image = image {
-                    let photoItem = CategoryPhotoItem(image: image)
-
-                    DispatchQueue.main.async {
-                        loadedPhotos.append(photoItem)
-                        self.photos = loadedPhotos
-                    }
-                }
+            Task { @MainActor in
+                self.loadPhotos(modelContext: modelContext)
             }
         }
     }
-    
-    @Published var captureItems: [CategoryCaptureItem] = [
-        CategoryCaptureItem(imageName: "sample_capture_1", category: .schedule),
-        CategoryCaptureItem(imageName: "sample_capture_2", category: .schedule),
-        CategoryCaptureItem(imageName: "sample_capture_3", category: .place),
-        CategoryCaptureItem(imageName: "sample_capture_4", category: .shopping),
-        CategoryCaptureItem(imageName: "sample_capture_5", category: .memo),
-        CategoryCaptureItem(imageName: "sample_capture_6", category: .unknown)
-    ]
 
-    var filteredItems: [CategoryCaptureItem] {
-        captureItems.filter {
-            $0.category == selectedCategory
+    private func loadPhotos(modelContext: ModelContext) {
+        do {
+            let descriptor = FetchDescriptor<PhotoAnalysisRecord>()
+            let records = try modelContext.fetch(descriptor)
+
+            let categoryMap = Dictionary(
+                uniqueKeysWithValues: records.map {
+                    ($0.localIdentifier, $0.category ?? "미분류")
+                }
+            )
+
+            let assets = PhotoAssetService().fetchScreenshotAssets(
+                from: InitialPermissionFlowManager.shared.screenshotStartDate
+            )
+
+            Task {
+                var loadedItems: [CategoryPhotoItem] = []
+
+                for asset in assets {
+                    guard let image = await PhotoAssetService().getUIImage(from: asset) else {
+                        continue
+                    }
+
+                    let item = CategoryPhotoItem(
+                        id: asset.localIdentifier,
+                        image: image,
+                        category: categoryMap[asset.localIdentifier] ?? "미분류"
+                    )
+
+                    loadedItems.append(item)
+                }
+
+                self.photos = loadedItems
+            }
+
+        } catch {
+            print("카테고리 데이터 로드 실패:", error.localizedDescription)
+        }
+    }
+
+    private func categoryText(_ category: CaptureCategory) -> String {
+        switch category {
+        case .shopping:
+            return "쇼핑"
+        case .place:
+            return "장소"
+        case .schedule:
+            return "일정"
+        case .memo:
+            return "메모"
+        case .unknown:
+            return "기타"
         }
     }
 }

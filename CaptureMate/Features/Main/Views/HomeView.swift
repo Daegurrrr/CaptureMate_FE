@@ -142,7 +142,13 @@ struct HomeView: View {
     }
 
     private func requestInitialPermissionsIfNeeded() {
-        guard !InitialPermissionFlowManager.shared.hasCompletedInitialPermission else {
+        let hasCompleted = InitialPermissionFlowManager.shared.hasCompletedInitialPermission
+        let startDate = InitialPermissionFlowManager.shared.screenshotStartDate
+
+        print("초기 권한 완료 여부:", hasCompleted)
+        print("현재 저장된 스크린샷 시작 날짜:", startDate as Any)
+
+        if hasCompleted, startDate != nil {
             return
         }
 
@@ -163,6 +169,17 @@ struct HomeView: View {
 
     private func saveScreenshotStartDate(_ date: Date) {
         InitialPermissionFlowManager.shared.saveScreenshotStartDate(date)
+
+        print(
+            "HomeView 저장 후 시작 날짜:",
+            InitialPermissionFlowManager.shared.screenshotStartDate as Any
+        )
+
         InitialPermissionFlowManager.shared.markCompleted()
+
+        NotificationCenter.default.post(
+            name: NSNotification.Name("StartPhotoUploadAfterPermission"),
+            object: nil
+        )
     }
 }

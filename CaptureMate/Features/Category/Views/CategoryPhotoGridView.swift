@@ -8,10 +8,6 @@
 import SwiftUI
 
 struct CategoryPhotoGridView: View {
-    // 실제 분류된 후 이미지 보여줄때 사용하는 코드
-    // let items: [CategoryCaptureItem]
-    
-    // 임시로 내 갤러리 모든 사진 보여주는 코드
     let items: [CategoryPhotoItem]
     @Binding var selectedPhoto: CategoryPhotoItem?
 
@@ -39,18 +35,14 @@ struct CategoryPhotoGridView: View {
                 ForEach(items) { item in
                     Image(uiImage: item.image)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
+                        .frame(height: 110)
                         .frame(maxWidth: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .clipped()
                         .onTapGesture {
                             selectedPhoto = item
                         }
-//                    Image(item.imageName)
-//                        .resizable()
-//                        .scaledToFill()
-//                        .frame(height: 110)
-//                        .clipShape(RoundedRectangle(cornerRadius: 14))
-//                        .clipped()
                 }
             }
         }

@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CategoryView: View {
+    @Environment(\.modelContext) private var modelContext
+
     @StateObject private var viewModel = CategoryViewModel()
     @State private var selectedPhoto: CategoryPhotoItem?
 
@@ -25,23 +28,21 @@ struct CategoryView: View {
                 CategoryFilterView(selectedCategory: $viewModel.selectedCategory)
 
                 ScrollView(showsIndicators: false) {
-                    // 분류 모델로 분류 후 실제 사진 필터링할때 사용
-//                    CategoryPhotoGridView(items: viewModel.filteredItems)
-                    
-                    // 임시로 필터링 없이 전체 사진 보여줌
                     CategoryPhotoGridView(
-                        items: viewModel.photos,
+                        items: viewModel.filteredItems,
                         selectedPhoto: $selectedPhoto
                     )
                     .fullScreenCover(item: $selectedPhoto) { photo in
                         PhotoDetailView(photo: photo)
                     }
-                        .padding(.top, 20)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 100)
+                    .padding(.top, 20)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 100)
                 }
                 .onAppear {
-                    viewModel.requestPhotoPermissionAndLoad()
+                    viewModel.requestPhotoPermissionAndLoad(
+                        modelContext: modelContext
+                    )
                 }
             }
             .background(Color(red: 0.97, green: 0.96, blue: 1.0))
