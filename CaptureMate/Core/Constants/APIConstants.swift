@@ -6,5 +6,5 @@
 //
 
 enum APIConstants {
-    static let baseURL = "http://10.60.42.208:8000"
+    static let baseURL = "http://172.28.126.100:8000"
 }

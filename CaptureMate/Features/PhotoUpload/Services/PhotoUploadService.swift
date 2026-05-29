@@ -180,6 +180,14 @@ final class PhotoUploadService {
             if let content = item.content {
                 parts.append(content)
             }
+            
+            if let mapUrl = item.mapUrl {
+                parts.append(mapUrl)
+            }
+
+            if let shoppingUrl = item.shoppingUrl {
+                parts.append(shoppingUrl)
+            }
 
             return parts.joined(separator: "\n")
         }

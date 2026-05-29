@@ -6,30 +6,15 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
 
     @State private var showsPermissionAlert = false
     @State private var showScreenshotStartDateDialog = false
-
-    let actions: [RecommendedAction] = [
-        RecommendedAction(
-            icon: "hourglass",
-            title: "곧 만료되는 쿠폰",
-            subtitle: "<스타벅스> 아메리카노 → D - 2"
-        ),
-        RecommendedAction(
-            icon: "mappin",
-            title: "감지된 장소",
-            subtitle: "애니언 성수"
-        ),
-        RecommendedAction(
-            icon: "calendar",
-            title: "감지된 일정",
-            subtitle: "신사 몬차치 팝업 → ~4월 30일"
-        )
-    ]
+    
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         let summary = CaptureSummary(
@@ -56,7 +41,7 @@ struct HomeView: View {
                         .font(.system(size: 20, weight: .bold))
                         .padding(.horizontal, 16)
 
-                    RecommendedActionCard(actions: actions)
+                    RecommendedActionCard(actions: viewModel.recommendedActions)
                         .padding(.horizontal, 16)
 
                     Spacer(minLength: 20)
@@ -68,6 +53,7 @@ struct HomeView: View {
         .background(Color.white)
         .onAppear {
             viewModel.loadTodayScreenshotCount()
+            viewModel.loadRecommendedActions(modelContext: modelContext)
             requestInitialPermissionsIfNeeded()
         }
         .onReceive(
@@ -83,6 +69,7 @@ struct HomeView: View {
             )
         ) { _ in
             viewModel.loadTodayScreenshotCount()
+            viewModel.loadRecommendedActions(modelContext: modelContext)
         }
         .alert("권한 허용이 필요해요", isPresented: $showsPermissionAlert) {
             Button("나중에") {

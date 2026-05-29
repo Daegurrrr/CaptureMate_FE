@@ -14,8 +14,20 @@ struct CaptureSummary {
     let otherCount: Int
 }
 
-struct RecommendedAction {
+struct RecommendedAction: Identifiable {
+    let id = UUID()
+
     let icon: String
     let title: String
-    let subtitle: String
+    let subtitle: String?
+
+    let type: ActionType
+    let url: String?
+    let dateText: String?
+}
+
+enum ActionType {
+    case place
+    case shopping
+    case schedule
 }

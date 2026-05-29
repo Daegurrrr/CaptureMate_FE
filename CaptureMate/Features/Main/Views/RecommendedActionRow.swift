@@ -1,5 +1,5 @@
 //
-//  Recommend.swift
+//  RecommendedActionRow.swift
 //  CaptureMate
 //
 //  Created by 허채윤 on 4/11/26.
@@ -9,40 +9,47 @@ import SwiftUI
 
 struct RecommendedActionRow: View {
     let action: RecommendedAction
+    let onTap: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: action.icon)
-                .frame(width: 22)
-                .foregroundColor(.brown)
+        Button {
+            onTap()
+        } label: {
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(action.title)
-                    .font(.system(size: 16, weight: .medium))
+            HStack(spacing: 12) {
 
-                Text(action.subtitle)
-                    .font(.system(size: 14))
+                Image(systemName: action.icon)
+                    .frame(width: 20)
+                    .foregroundColor(.brown)
+
+                VStack(alignment: .leading, spacing: 4) {
+
+                    Text(action.title)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.black)
+
+                    if let subtitle = action.subtitle {
+                        Text(subtitle)
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
                     .foregroundColor(.gray)
             }
-
-            Spacer()
-
-            Button {
-                print("더보기")
-            } label: {
-                Image(systemName: "ellipsis")
-                    .foregroundColor(.gray)
-                    .frame(width: 32, height: 32)
-                    .background(Color(.systemGray6))
-                    .clipShape(Circle())
-            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 14)
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 14)
+        .buttonStyle(.plain)
 
-        // ⭐ 여기서 스와이프 기능 추가
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .swipeActions(
+            edge: .trailing,
+            allowsFullSwipe: false
+        ) {
 
             Button {
                 onDelete()
@@ -50,7 +57,6 @@ struct RecommendedActionRow: View {
                 Image(systemName: "trash")
             }
             .tint(.red)
-
         }
     }
 }
