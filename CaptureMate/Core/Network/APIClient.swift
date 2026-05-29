@@ -72,6 +72,30 @@ final class APIClient {
             response: response
         )
     }
+    
+    func patch<R: Decodable>(
+        path: String,
+        requiresAuth: Bool = true
+    ) async throws -> R {
+        guard let url = URL(string: APIConstants.baseURL + path) else {
+            throw NetworkError.badURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+
+        addAuthorizationHeaderIfNeeded(
+            to: &request,
+            requiresAuth: requiresAuth
+        )
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        return try handleResponse(
+            data: data,
+            response: response
+        )
+    }
 
     func uploadMultipart<R: Decodable>(
         path: String,

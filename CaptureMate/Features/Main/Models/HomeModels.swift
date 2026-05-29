@@ -9,14 +9,15 @@ import Foundation
 
 struct CaptureSummary {
     let totalCount: Int
-    let placeCount: Int
-    let couponCount: Int
-    let otherCount: Int
+    let placeShoppingCount: Int
+    let scheduleCount: Int
+    let memoCount: Int
 }
 
 struct RecommendedAction: Identifiable {
     let id = UUID()
-
+    let localIdentifier: String
+    
     let icon: String
     let title: String
     let subtitle: String?

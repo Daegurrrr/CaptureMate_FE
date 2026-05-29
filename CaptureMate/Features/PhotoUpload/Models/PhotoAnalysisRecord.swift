@@ -20,8 +20,11 @@ final class PhotoAnalysisRecord {
     var imageCreatedAt: Date?
     var analyzedAt: Date?
 
+    var isActionCompleted: Bool
+
     init(localIdentifier: String) {
         self.localIdentifier = localIdentifier
         self.keywords = []
+        self.isActionCompleted = false
     }
 }

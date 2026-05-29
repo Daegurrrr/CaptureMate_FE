@@ -30,9 +30,9 @@ struct TodayCaptureSummaryCard: View {
             Divider()
 
             HStack(spacing: 12) {
-                SummaryMiniCard(title: "장소", count: summary.placeCount, bgColor: Color(red: 231/255, green: 236/255, blue: 250/255))
-                SummaryMiniCard(title: "쿠폰", count: summary.couponCount, bgColor: Color(red: 246/255, green: 237/255, blue: 232/255))
-                SummaryMiniCard(title: "기타", count: summary.otherCount, bgColor: Color(red: 234/255, green: 243/255, blue: 238/255))
+                SummaryMiniCard(title: "장소/쇼핑", count: summary.placeShoppingCount, bgColor: Color(red: 231/255, green: 236/255, blue: 250/255))
+                SummaryMiniCard(title: "일정", count: summary.scheduleCount, bgColor: Color(red: 246/255, green: 237/255, blue: 232/255))
+                SummaryMiniCard(title: "메모", count: summary.memoCount, bgColor: Color(red: 234/255, green: 243/255, blue: 238/255))
             }
         }
         .padding(16)

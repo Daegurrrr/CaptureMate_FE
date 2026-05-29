@@ -19,9 +19,9 @@ struct HomeView: View {
     var body: some View {
         let summary = CaptureSummary(
             totalCount: viewModel.todayScreenshotCount,
-            placeCount: 0,
-            couponCount: 0,
-            otherCount: 0
+            placeShoppingCount: viewModel.placeCount + viewModel.shoppingCount,
+            scheduleCount: viewModel.scheduleCount,
+            memoCount: viewModel.memoCount
         )
 
         return VStack(spacing: 0) {
@@ -41,7 +41,15 @@ struct HomeView: View {
                         .font(.system(size: 20, weight: .bold))
                         .padding(.horizontal, 16)
 
-                    RecommendedActionCard(actions: viewModel.recommendedActions)
+                    RecommendedActionCard(
+                        actions: viewModel.recommendedActions,
+                        onDelete: { action in
+                            viewModel.removeAction(
+                                action,
+                                modelContext: modelContext
+                            )
+                        }
+                    )
                         .padding(.horizontal, 16)
 
                     Spacer(minLength: 20)
@@ -54,6 +62,7 @@ struct HomeView: View {
         .onAppear {
             viewModel.loadTodayScreenshotCount()
             viewModel.loadRecommendedActions(modelContext: modelContext)
+            viewModel.loadCategoryCounts(modelContext: modelContext)
             requestInitialPermissionsIfNeeded()
         }
         .onReceive(
@@ -70,6 +79,7 @@ struct HomeView: View {
         ) { _ in
             viewModel.loadTodayScreenshotCount()
             viewModel.loadRecommendedActions(modelContext: modelContext)
+            viewModel.loadCategoryCounts(modelContext: modelContext)
         }
         .alert("권한 허용이 필요해요", isPresented: $showsPermissionAlert) {
             Button("나중에") {

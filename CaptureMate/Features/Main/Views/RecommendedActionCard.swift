@@ -10,6 +10,7 @@ import SwiftUI
 struct RecommendedActionCard: View {
 
     let actions: [RecommendedAction]
+    let onDelete: (RecommendedAction) -> Void
 
     var body: some View {
 
@@ -36,7 +37,7 @@ struct RecommendedActionCard: View {
                         },
 
                         onDelete: {
-                            print("삭제:", action.title)
+                            onDelete(action)
                         }
                     )
 
@@ -44,6 +45,7 @@ struct RecommendedActionCard: View {
 
                         Divider()
                             .padding(.leading, 46)
+
                     }
                 }
             }
