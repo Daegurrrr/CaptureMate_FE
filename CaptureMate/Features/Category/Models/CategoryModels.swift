@@ -20,3 +20,4 @@ struct CategoryPhotoItem: Identifiable {
     let image: UIImage
     let category: String
 }
+ 

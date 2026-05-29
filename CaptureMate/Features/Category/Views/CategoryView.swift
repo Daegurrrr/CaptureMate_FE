@@ -32,9 +32,6 @@ struct CategoryView: View {
                         items: viewModel.filteredItems,
                         selectedPhoto: $selectedPhoto
                     )
-                    .fullScreenCover(item: $selectedPhoto) { photo in
-                        PhotoDetailView(photo: photo)
-                    }
                     .padding(.top, 20)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 100)
@@ -48,5 +45,8 @@ struct CategoryView: View {
             .background(Color(red: 0.97, green: 0.96, blue: 1.0))
         }
         .background(Color.white)
+        .fullScreenCover(item: $selectedPhoto) { photo in
+            PhotoDetailView(photo: photo)
+        }
     }
 }

@@ -39,7 +39,7 @@ final class PhotoUploadService {
             requiresAuth: true
         )
     }
-    
+
     func fetchScreenshotDetail(
         localIdentifier: String
     ) async throws -> ScreenshotDetailResponse {
@@ -96,7 +96,7 @@ final class PhotoUploadService {
                 record.uploadStatus = "uploading"
                 try? modelContext.save()
 
-                let uploadResponse = try await uploadPhoto(
+                _ = try await uploadPhoto(
                     imageData: imageData,
                     localIdentifier: localId
                 )
@@ -111,22 +111,33 @@ final class PhotoUploadService {
                 record.serverImageId = "\(detail.screenshotId)"
                 record.uploadedAt = Date()
 
-                let analysis = PhotoAnalysisRecord(localIdentifier: localId)
+                let analysisDescriptor = FetchDescriptor<PhotoAnalysisRecord>(
+                    predicate: #Predicate { $0.localIdentifier == localId }
+                )
+
+                let existingAnalysis = try? modelContext.fetch(analysisDescriptor).first
+
+                let analysis = existingAnalysis ?? PhotoAnalysisRecord(localIdentifier: localId)
+
                 analysis.serverImageId = "\(detail.screenshotId)"
                 analysis.category = detail.analysis?.category
                 analysis.ocrText = detail.ocrText
                 analysis.imageCreatedAt = asset.creationDate
                 analysis.analyzedAt = Date()
 
-                if let items = detail.analysis?.summary.items {
+                if let items = detail.analysis?.items {
                     analysis.actionData = makeSummaryText(from: items)
+                } else {
+                    analysis.actionData = nil
                 }
 
-                modelContext.insert(analysis)
+                if existingAnalysis == nil {
+                    modelContext.insert(analysis)
+                }
 
                 try modelContext.save()
 
-                print("사진 업로드 성공:", localId)
+                print("사진 업로드 및 분석 결과 저장 성공:", localId)
 
             } catch {
                 record.uploadStatus = "failed"
@@ -137,33 +148,54 @@ final class PhotoUploadService {
             }
         }
     }
-    
+
     private func makeSummaryText(from items: [ScreenshotSummaryItem]) -> String {
         items.map { item in
             var parts: [String] = []
 
             if let placeName = item.placeName {
-                parts.append("placeName: \(placeName)")
+                parts.append(placeName)
             }
 
             if let address = item.address {
-                parts.append("address: \(address)")
+                parts.append(address)
             }
 
             if let title = item.title {
-                parts.append("title: \(title)")
+                parts.append(title)
             }
 
             if let startAt = item.startAt {
-                parts.append("startAt: \(startAt)")
+                parts.append(formatDate(startAt))
             }
 
             if let endAt = item.endAt {
-                parts.append("endAt: \(endAt)")
+                parts.append(formatDate(endAt))
+            }
+
+            if let productName = item.productName {
+                parts.append(productName)
+            }
+
+            if let content = item.content {
+                parts.append(content)
             }
 
             return parts.joined(separator: "\n")
         }
         .joined(separator: "\n\n")
+    }
+    
+    private func formatDate(_ text: String) -> String {
+        let formatter = ISO8601DateFormatter()
+
+        guard let date = formatter.date(from: text) else {
+            return text
+        }
+
+        let output = DateFormatter()
+        output.dateFormat = "yyyy.MM.dd HH:mm"
+
+        return output.string(from: date)
     }
 }

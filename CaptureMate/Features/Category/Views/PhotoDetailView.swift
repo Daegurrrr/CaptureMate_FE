@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PhotoDetailView: View {
     let photo: CategoryPhotoItem
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+
     @State private var showCaption = false
+    @State private var analysisRecord: PhotoAnalysisRecord?
 
     var body: some View {
         ZStack {
@@ -19,12 +23,12 @@ struct PhotoDetailView: View {
 
             VStack {
                 Spacer()
-                
+
                 Image(uiImage: photo.image)
                     .resizable()
                     .scaledToFit()
                     .padding(.horizontal, 12)
-                
+
                 Spacer()
             }
 
@@ -57,10 +61,23 @@ struct PhotoDetailView: View {
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.black)
 
-                    Text("분류 결과, OCR 텍스트, 추천 액션 등이 여기에 표시돼요.")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("분류 결과: \(analysisRecord?.category ?? "미분류")")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.black)
+
+                        if let actionData = analysisRecord?.actionData,
+                           !actionData.isEmpty {
+                            Text(actionData)
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                        } else {
+                            Text("저장된 분석 결과가 없어요.")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
@@ -68,9 +85,12 @@ struct PhotoDetailView: View {
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 24))
-                .offset(y: showCaption ? 0 : 170)
+                .offset(y: showCaption ? 0 : 220)
                 .animation(.spring(), value: showCaption)
             }
+        }
+        .onAppear {
+            loadAnalysis()
         }
         .contentShape(Rectangle())
         .gesture(
@@ -83,5 +103,15 @@ struct PhotoDetailView: View {
                     }
                 }
         )
+    }
+
+    private func loadAnalysis() {
+        let localId = photo.id
+
+        let descriptor = FetchDescriptor<PhotoAnalysisRecord>(
+            predicate: #Predicate { $0.localIdentifier == localId }
+        )
+
+        analysisRecord = try? modelContext.fetch(descriptor).first
     }
 }
