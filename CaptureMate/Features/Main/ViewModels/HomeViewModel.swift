@@ -103,7 +103,8 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "장소 바로가기",
                             type: .place,
                             url: url,
-                            dateText: nil
+                            startDate: nil,
+                            endDate: nil
                         )
 
                     case "쇼핑":
@@ -117,12 +118,24 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "상품 보러가기",
                             type: .shopping,
                             url: url,
-                            dateText: nil
+                            startDate: nil,
+                            endDate: nil
                         )
 
                     case "일정":
                         let title = lines.first ?? "감지된 일정"
-                        let dateText = lines.dropFirst().first
+
+                        let startDate = lines
+                            .compactMap { parseDate(from: $0) }
+                            .first
+
+                        let endDate = startDate.flatMap {
+                            Calendar.current.date(
+                                byAdding: .hour,
+                                value: 1,
+                                to: $0
+                            )
+                        }
 
                         return RecommendedAction(
                             localIdentifier: record.localIdentifier,
@@ -131,7 +144,8 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "캘린더에 추가하기",
                             type: .schedule,
                             url: nil,
-                            dateText: dateText
+                            startDate: startDate,
+                            endDate: endDate
                         )
 
                     default:
@@ -142,6 +156,34 @@ final class HomeViewModel: ObservableObject {
         } catch {
             print("추천 액션 로드 실패:", error.localizedDescription)
         }
+    }
+    
+    private func parseDate(from text: String) -> Date? {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [
+            .withInternetDateTime,
+            .withFractionalSeconds
+        ]
+
+        if let date = isoFormatter.date(from: text) {
+            return date
+        }
+
+        let simpleISOFormatter = DateFormatter()
+        simpleISOFormatter.locale = Locale(identifier: "ko_KR")
+        simpleISOFormatter.timeZone = TimeZone.current
+        simpleISOFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+
+        if let date = simpleISOFormatter.date(from: text) {
+            return date
+        }
+
+        let dateOnlyFormatter = DateFormatter()
+        dateOnlyFormatter.locale = Locale(identifier: "ko_KR")
+        dateOnlyFormatter.timeZone = TimeZone.current
+        dateOnlyFormatter.dateFormat = "yyyy-MM-dd"
+
+        return dateOnlyFormatter.date(from: text)
     }
     
     func removeAction(

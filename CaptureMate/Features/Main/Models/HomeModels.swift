@@ -24,7 +24,8 @@ struct RecommendedAction: Identifiable {
 
     let type: ActionType
     let url: String?
-    let dateText: String?
+    let startDate: Date?
+    let endDate: Date?
 }
 
 enum ActionType {
