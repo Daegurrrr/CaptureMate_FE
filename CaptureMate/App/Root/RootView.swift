@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import Photos
 
 struct RootView: View {
     @EnvironmentObject private var session: AppSession
@@ -24,6 +23,15 @@ struct RootView: View {
                     .task {
                         await startPhotoUploadFlow()
                     }
+                    .onReceive(
+                        NotificationCenter.default.publisher(
+                            for: NSNotification.Name("StartPhotoUploadAfterPermission")
+                        )
+                    ) { _ in
+                        Task {
+                            await startPhotoUploadFlow()
+                        }
+                    }
 
             } else if !session.hasSeenIntro {
                 IntroPagerView()
@@ -35,21 +43,30 @@ struct RootView: View {
     }
 
     private func startPhotoUploadFlow() async {
-        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        PhotoPermissionManager.shared.requestPermission { isAllowed in
+            guard isAllowed else {
+                print("사진 권한 없음")
+                return
+            }
 
-        guard status == .authorized || status == .limited else {
-            print("사진 권한 없음")
-            return
-        }
+            let startDate = InitialPermissionFlowManager.shared.screenshotStartDate
 
-        await photoUploadService.uploadNewPhotos(
-            modelContext: modelContext
-        )
+            guard startDate != nil else {
+                print("스크린샷 시작 날짜가 아직 없어 업로드 보류")
+                return
+            }
 
-        if photoLibraryObserver == nil {
-            photoLibraryObserver = PhotoLibraryObserver(
-                modelContext: modelContext
-            )
+            Task { @MainActor in
+                await photoUploadService.uploadNewPhotos(
+                    modelContext: modelContext
+                )
+
+                if photoLibraryObserver == nil {
+                    photoLibraryObserver = PhotoLibraryObserver(
+                        modelContext: modelContext
+                    )
+                }
+            }
         }
     }
 }

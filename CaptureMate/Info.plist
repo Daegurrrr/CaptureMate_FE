@@ -23,5 +23,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>일정을 캘린더에 저장하기 위해 권한이 필요합니다</string>
 </dict>
 </plist>

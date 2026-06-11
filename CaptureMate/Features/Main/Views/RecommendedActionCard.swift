@@ -1,5 +1,5 @@
 //
-//  Recommend.swift
+//  RecommendedActionCard.swift
 //  CaptureMate
 //
 //  Created by 허채윤 on 4/11/26.
@@ -8,57 +8,94 @@
 import SwiftUI
 
 struct RecommendedActionCard: View {
+
     let actions: [RecommendedAction]
+    let onDelete: (RecommendedAction) -> Void
+
+    @State private var pendingScheduleAction: RecommendedAction?
+    @State private var showCalendarAlert = false
 
     var body: some View {
-        List {
-            ForEach(actions.indices, id: \.self) { index in
-                HStack(spacing: 12) {
-                    Image(systemName: actions[index].icon)
-                        .frame(width: 20)
-                        .foregroundColor(.brown)
+        VStack(spacing: 0) {
+            if actions.isEmpty {
+                Text("추천 액션이 아직 없어요")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 32)
+            } else {
+                ForEach(actions) { action in
+                    RecommendedActionRow(
+                        action: action,
+                        onTap: {
+                            handleAction(action)
+                        },
+                        onDelete: {
+                            onDelete(action)
+                        }
+                    )
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(actions[index].title)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.black)
-
-                        Text(actions[index].subtitle)
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                    if action.id != actions.last?.id {
+                        Divider()
+                            .padding(.leading, 46)
                     }
-
-                    Spacer()
-
-                    Button {
-                        print("더보기")
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(.gray)
-                            .frame(width: 32, height: 32)
-                            .background(Color(.systemGray6))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                }
-                .listRowInsets(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14))
-                .listRowSeparator(index == 0 ? .hidden : .visible, edges: .top)
-                .listRowBackground(Color.white)
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button {
-                        print("삭제 예정: \(actions[index].title)")
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .tint(.red)
                 }
             }
         }
-        .listStyle(.plain)
-        .scrollDisabled(true)
-        .scrollContentBackground(.hidden)
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .frame(height: 192)
+        .alert("캘린더에 저장할까요?", isPresented: $showCalendarAlert) {
+            Button("취소", role: .cancel) {}
+
+            Button("저장") {
+                savePendingSchedule()
+            }
+        } message: {
+            Text(pendingScheduleAction?.title ?? "")
+        }
+    }
+
+    private func handleAction(_ action: RecommendedAction) {
+        switch action.type {
+
+        case .place, .shopping:
+            guard let urlString = action.url,
+                  let url = URL(string: urlString) else {
+                return
+            }
+            UIApplication.shared.open(url)
+
+        case .schedule:
+            pendingScheduleAction = action
+            showCalendarAlert = true
+        }
+    }
+
+    private func savePendingSchedule() {
+        guard let action = pendingScheduleAction,
+              let startDate = action.startDate else {
+            print("일정 시작 시간이 없음")
+            return
+        }
+
+        let endDate = action.endDate ?? Calendar.current.date(
+            byAdding: .hour,
+            value: 1,
+            to: startDate
+        ) ?? startDate
+
+        Task {
+            let success = await CalendarService.shared.addEvent(
+                title: action.title,
+                startDate: startDate,
+                endDate: endDate
+            )
+
+            if success {
+                await CalendarService.shared.openCalendarApp(
+                    at: startDate
+                )
+            }
+        }
     }
 }

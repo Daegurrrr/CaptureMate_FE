@@ -6,37 +6,22 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
 
     @State private var showsPermissionAlert = false
     @State private var showScreenshotStartDateDialog = false
-
-    let actions: [RecommendedAction] = [
-        RecommendedAction(
-            icon: "hourglass",
-            title: "곧 만료되는 쿠폰",
-            subtitle: "<스타벅스> 아메리카노 → D - 2"
-        ),
-        RecommendedAction(
-            icon: "mappin",
-            title: "감지된 장소",
-            subtitle: "애니언 성수"
-        ),
-        RecommendedAction(
-            icon: "calendar",
-            title: "감지된 일정",
-            subtitle: "신사 몬차치 팝업 → ~4월 30일"
-        )
-    ]
+    
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         let summary = CaptureSummary(
             totalCount: viewModel.todayScreenshotCount,
-            placeCount: 0,
-            couponCount: 0,
-            otherCount: 0
+            placeShoppingCount: viewModel.placeCount + viewModel.shoppingCount,
+            scheduleCount: viewModel.scheduleCount,
+            memoCount: viewModel.memoCount
         )
 
         return VStack(spacing: 0) {
@@ -56,7 +41,15 @@ struct HomeView: View {
                         .font(.system(size: 20, weight: .bold))
                         .padding(.horizontal, 16)
 
-                    RecommendedActionCard(actions: actions)
+                    RecommendedActionCard(
+                        actions: viewModel.recommendedActions,
+                        onDelete: { action in
+                            viewModel.removeAction(
+                                action,
+                                modelContext: modelContext
+                            )
+                        }
+                    )
                         .padding(.horizontal, 16)
 
                     Spacer(minLength: 20)
@@ -68,6 +61,8 @@ struct HomeView: View {
         .background(Color.white)
         .onAppear {
             viewModel.loadTodayScreenshotCount()
+            viewModel.loadRecommendedActions(modelContext: modelContext)
+            viewModel.loadCategoryCounts(modelContext: modelContext)
             requestInitialPermissionsIfNeeded()
         }
         .onReceive(
@@ -83,6 +78,8 @@ struct HomeView: View {
             )
         ) { _ in
             viewModel.loadTodayScreenshotCount()
+            viewModel.loadRecommendedActions(modelContext: modelContext)
+            viewModel.loadCategoryCounts(modelContext: modelContext)
         }
         .alert("권한 허용이 필요해요", isPresented: $showsPermissionAlert) {
             Button("나중에") {
@@ -142,7 +139,13 @@ struct HomeView: View {
     }
 
     private func requestInitialPermissionsIfNeeded() {
-        guard !InitialPermissionFlowManager.shared.hasCompletedInitialPermission else {
+        let hasCompleted = InitialPermissionFlowManager.shared.hasCompletedInitialPermission
+        let startDate = InitialPermissionFlowManager.shared.screenshotStartDate
+
+        print("초기 권한 완료 여부:", hasCompleted)
+        print("현재 저장된 스크린샷 시작 날짜:", startDate as Any)
+
+        if hasCompleted, startDate != nil {
             return
         }
 
@@ -163,6 +166,17 @@ struct HomeView: View {
 
     private func saveScreenshotStartDate(_ date: Date) {
         InitialPermissionFlowManager.shared.saveScreenshotStartDate(date)
+
+        print(
+            "HomeView 저장 후 시작 날짜:",
+            InitialPermissionFlowManager.shared.screenshotStartDate as Any
+        )
+
         InitialPermissionFlowManager.shared.markCompleted()
+
+        NotificationCenter.default.post(
+            name: NSNotification.Name("StartPhotoUploadAfterPermission"),
+            object: nil
+        )
     }
 }

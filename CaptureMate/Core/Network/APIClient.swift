@@ -19,6 +19,30 @@ final class APIClient {
 
     private init() {}
 
+    func get<R: Decodable>(
+        path: String,
+        requiresAuth: Bool = false
+    ) async throws -> R {
+        guard let url = URL(string: APIConstants.baseURL + path) else {
+            throw NetworkError.badURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        addAuthorizationHeaderIfNeeded(
+            to: &request,
+            requiresAuth: requiresAuth
+        )
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        return try handleResponse(
+            data: data,
+            response: response
+        )
+    }
+    
     func post<T: Encodable, R: Decodable>(
         path: String,
         body: T,
@@ -35,6 +59,30 @@ final class APIClient {
             forHTTPHeaderField: "Content-Type"
         )
         request.httpBody = try JSONEncoder().encode(body)
+
+        addAuthorizationHeaderIfNeeded(
+            to: &request,
+            requiresAuth: requiresAuth
+        )
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        return try handleResponse(
+            data: data,
+            response: response
+        )
+    }
+    
+    func patch<R: Decodable>(
+        path: String,
+        requiresAuth: Bool = true
+    ) async throws -> R {
+        guard let url = URL(string: APIConstants.baseURL + path) else {
+            throw NetworkError.badURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
 
         addAuthorizationHeaderIfNeeded(
             to: &request,
@@ -121,7 +169,7 @@ final class APIClient {
         do {
             return try JSONDecoder().decode(R.self, from: data)
         } catch {
-            print("Decoding Failed:", error.localizedDescription)
+            print("Decoding Failed:", error)
             throw NetworkError.decodingFailed
         }
     }

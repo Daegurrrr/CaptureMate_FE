@@ -6,16 +6,25 @@
 //
 
 import Foundation
+import UIKit
 import Photos
 
 final class PhotoAssetService {
-    func fetchScreenshotAssets() -> [PHAsset] {
+    func fetchScreenshotAssets(from startDate: Date?) -> [PHAsset] {
         let options = PHFetchOptions()
 
-        options.predicate = NSPredicate(
-            format: "mediaSubtype & %d != 0",
-            PHAssetMediaSubtype.photoScreenshot.rawValue
-        )
+        if let startDate {
+            options.predicate = NSPredicate(
+                format: "mediaSubtype & %d != 0 AND creationDate >= %@",
+                PHAssetMediaSubtype.photoScreenshot.rawValue,
+                startDate as NSDate
+            )
+        } else {
+            options.predicate = NSPredicate(
+                format: "mediaSubtype & %d != 0",
+                PHAssetMediaSubtype.photoScreenshot.rawValue
+            )
+        }
 
         options.sortDescriptors = [
             NSSortDescriptor(key: "creationDate", ascending: false)
@@ -46,6 +55,24 @@ final class PhotoAssetService {
                 options: options
             ) { data, _, _, _ in
                 continuation.resume(returning: data)
+            }
+        }
+    }
+    
+    func getUIImage(from asset: PHAsset) async -> UIImage? {
+        await withCheckedContinuation { continuation in
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.resizeMode = .fast
+            options.isNetworkAccessAllowed = true
+
+            PHImageManager.default().requestImage(
+                for: asset,
+                targetSize: CGSize(width: 300, height: 300),
+                contentMode: .aspectFill,
+                options: options
+            ) { image, _ in
+                continuation.resume(returning: image)
             }
         }
     }

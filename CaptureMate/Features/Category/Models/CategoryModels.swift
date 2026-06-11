@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SwiftUI
+import Photos
 
 struct CategoryCaptureItem: Identifiable {
     let id = UUID()
@@ -13,10 +15,9 @@ struct CategoryCaptureItem: Identifiable {
     let category: CaptureCategory
 }
 
-// 분류 모델돌리기 전 그냥 사진 보여주기 위한 코드
-import UIKit
-
 struct CategoryPhotoItem: Identifiable {
-    let id = UUID()
+    let id: String
     let image: UIImage
+    let category: String
 }
+ 

@@ -9,13 +9,27 @@ import Foundation
 
 struct CaptureSummary {
     let totalCount: Int
-    let placeCount: Int
-    let couponCount: Int
-    let otherCount: Int
+    let placeShoppingCount: Int
+    let scheduleCount: Int
+    let memoCount: Int
 }
 
-struct RecommendedAction {
+struct RecommendedAction: Identifiable {
+    let id = UUID()
+    let localIdentifier: String
+    
     let icon: String
     let title: String
-    let subtitle: String
+    let subtitle: String?
+
+    let type: ActionType
+    let url: String?
+    let startDate: Date?
+    let endDate: Date?
+}
+
+enum ActionType {
+    case place
+    case shopping
+    case schedule
 }
