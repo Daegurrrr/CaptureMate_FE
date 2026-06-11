@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct AppHeaderView: View {
+    @Environment(\.dismiss) private var dismiss
+
     let title: String
+    var showsBackButton: Bool = false
+    var showsBellButton: Bool = true
 
     var body: some View {
         ZStack {
@@ -16,13 +20,25 @@ struct AppHeaderView: View {
                 .font(.system(size: 20, weight: .semibold))
 
             HStack {
+                if showsBackButton {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.black)
+                    }
+                }
+
                 Spacer()
 
-                Button {
-                } label: {
-                    Image(systemName: "bell")
-                        .font(.system(size: 20))
-                        .foregroundColor(.black)
+                if showsBellButton {
+                    Button {
+                    } label: {
+                        Image(systemName: "bell")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                    }
                 }
             }
         }

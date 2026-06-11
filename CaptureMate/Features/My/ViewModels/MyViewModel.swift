@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 final class MyViewModel: ObservableObject {
     @Published var userName: String = "사용자"
-    
+
     private let authService = AuthService()
 
     let menuItems: [MyMenuItem] = [
@@ -19,19 +19,16 @@ final class MyViewModel: ObservableObject {
             icon: "bell.fill",
             type: .notificationSetting
         ),
-
         MyMenuItem(
             title: "접근 권한 설정",
             icon: "lock.fill",
             type: .permissionSetting
         ),
-
         MyMenuItem(
             title: "로그아웃",
             icon: "rectangle.portrait.and.arrow.right",
             type: .logout
         ),
-
         MyMenuItem(
             title: "탈퇴하기",
             icon: "person.crop.circle.badge.xmark",
@@ -44,11 +41,8 @@ final class MyViewModel: ObservableObject {
         onLogout: @escaping () -> Void
     ) {
         switch item.type {
-        case .notificationSetting:
-            print("알림 설정 이동")
-
-        case .permissionSetting:
-            print("접근 권한 설정 이동")
+        case .notificationSetting, .permissionSetting:
+            break
 
         case .logout:
             logout(onLogout: onLogout)
@@ -57,7 +51,7 @@ final class MyViewModel: ObservableObject {
             print("탈퇴하기")
         }
     }
-    
+
     private func logout(onLogout: @escaping () -> Void) {
         Task {
             do {
@@ -66,7 +60,7 @@ final class MyViewModel: ObservableObject {
             } catch {
                 print("Logout Failed:", error.localizedDescription)
             }
-            
+
             UserDefaults.standard.removeObject(forKey: "accessToken")
             UserDefaults.standard.removeObject(forKey: "refreshToken")
             UserDefaults.standard.removeObject(forKey: "userId")
