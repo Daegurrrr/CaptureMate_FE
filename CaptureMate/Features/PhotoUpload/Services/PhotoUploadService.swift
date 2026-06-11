@@ -202,7 +202,19 @@ final class PhotoUploadService {
         }
 
         let output = DateFormatter()
-        output.dateFormat = "yyyy.MM.dd HH:mm"
+        output.locale = Locale(identifier: "ko_KR")
+
+        // 시간이 00:00:00 또는 23:59:59이면 날짜만 표시
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute, .second], from: date)
+
+        if (components.hour == 0 && components.minute == 0 && components.second == 0) ||
+           (components.hour == 23 && components.minute == 59 && components.second == 59) {
+
+            output.dateFormat = "yyyy.MM.dd"
+        } else {
+            output.dateFormat = "yyyy.MM.dd HH:mm"
+        }
 
         return output.string(from: date)
     }

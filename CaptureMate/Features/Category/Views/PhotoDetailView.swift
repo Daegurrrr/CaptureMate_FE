@@ -62,15 +62,16 @@ struct PhotoDetailView: View {
                         .foregroundColor(.black)
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("분류 결과: \(analysisRecord?.category ?? "미분류")")
+                        Text(analysisRecord?.category ?? "미분류")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.black)
-
+                        
                         if let actionData = analysisRecord?.actionData,
                            !actionData.isEmpty {
-                            Text(actionData)
+
+                            Text(makeLinkedText(from: actionData))
                                 .font(.system(size: 13))
-                                .foregroundColor(.gray)
+                                .tint(.blue)
                         } else {
                             Text("저장된 분석 결과가 없어요.")
                                 .font(.system(size: 13))
@@ -113,5 +114,31 @@ struct PhotoDetailView: View {
         )
 
         analysisRecord = try? modelContext.fetch(descriptor).first
+    }
+    
+    private func makeLinkedText(from text: String) -> AttributedString {
+        var attributedString = AttributedString(text)
+
+        let detector = try? NSDataDetector(
+            types: NSTextCheckingResult.CheckingType.link.rawValue
+        )
+
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+
+        detector?
+            .matches(in: text, options: [], range: range)
+            .forEach { match in
+                guard let url = match.url,
+                      let stringRange = Range(match.range, in: text),
+                      let attributedRange = Range(stringRange, in: attributedString) else {
+                    return
+                }
+
+                attributedString[attributedRange].link = url
+                attributedString[attributedRange].foregroundColor = .blue
+                attributedString[attributedRange].underlineStyle = .single
+            }
+
+        return attributedString
     }
 }
