@@ -16,7 +16,7 @@ final class PhotoUploadService {
     func uploadPhoto(
         imageData: Data,
         localIdentifier: String
-    ) async throws -> PhotoUploadResponse {
+    ) async throws {
         var multipart = MultipartFormData()
 
         multipart.appendFile(
@@ -33,7 +33,7 @@ final class PhotoUploadService {
 
         multipart.finalize()
 
-        return try await APIClient.shared.uploadMultipart(
+        return try await APIClient.shared.uploadMultipartWithoutDecoding(
             path: "/screenshots",
             multipart: multipart,
             requiresAuth: true
@@ -72,7 +72,60 @@ final class PhotoUploadService {
 
             if let existingRecord,
                existingRecord.uploadStatus == "uploaded" {
-                print("이미 업로드 완료:", localId)
+
+                let analysisDescriptor = FetchDescriptor<PhotoAnalysisRecord>(
+                    predicate: #Predicate { $0.localIdentifier == localId }
+                )
+
+                let existingAnalysis = try? modelContext.fetch(analysisDescriptor).first
+
+                // 이미 분석 결과까지 저장되어 있으면 완전히 건너뜀
+                if existingAnalysis != nil {
+                    print("이미 업로드 및 분석 완료:", localId)
+                    continue
+                }
+
+                print("업로드 완료 상태지만 분석 정보 없음. 상세조회만 수행:", localId)
+
+                do {
+                    let detailResponse = try await fetchScreenshotDetail(
+                        localIdentifier: localId
+                    )
+
+                    let detail = detailResponse.data
+                    
+                    existingRecord.serverImageId = "\(detail.screenshotId)"
+
+                    let analysis = PhotoAnalysisRecord(
+                        localIdentifier: localId
+                    )
+
+                    analysis.serverImageId = "\(detail.screenshotId)"
+                    analysis.category = detail.analysis?.category
+                    analysis.ocrText = detail.ocrText
+                    analysis.imageCreatedAt = asset.creationDate
+
+                    if let analyzedAtString = detail.analysis?.analyzedAt {
+                        analysis.analyzedAt = ISO8601DateFormatter().date(
+                            from: analyzedAtString
+                        )
+                    }
+
+                    if let items = detail.analysis?.items {
+                        analysis.actionData = makeSummaryText(from: items)
+                    } else {
+                        analysis.actionData = nil
+                    }
+
+                    modelContext.insert(analysis)
+                    try? modelContext.save()
+
+                    print("상세조회 재시도 성공:", localId)
+
+                } catch {
+                    print("상세조회 재시도 실패:", localId, error.localizedDescription)
+                }
+
                 continue
             }
 
@@ -83,33 +136,49 @@ final class PhotoUploadService {
             } else {
                 print("기존 업로드 실패/대기 기록 있음, 재시도:", localId)
             }
-
+            
             do {
                 guard let imageData = await photoAssetService.getImageData(from: asset) else {
                     record.uploadStatus = "failed"
                     record.retryCount += 1
                     try? modelContext.save()
-                    print("이미지 데이터 변환 실패:", localId)
                     continue
                 }
 
                 record.uploadStatus = "uploading"
                 try? modelContext.save()
 
-                _ = try await uploadPhoto(
+                // ===== 업로드 =====
+                try await uploadPhoto(
                     imageData: imageData,
                     localIdentifier: localId
                 )
 
+                // 업로드만 성공하면 성공 처리
+                record.uploadStatus = "uploaded"
+                record.uploadedAt = Date()
+                try? modelContext.save()
+
+                print("사진 업로드 성공:", localId)
+
+            } catch {
+                // 업로드 실패한 경우만 재시도
+                record.uploadStatus = "failed"
+                record.retryCount += 1
+                try? modelContext.save()
+
+                print("사진 업로드 실패:", localId, error.localizedDescription)
+                continue
+            }
+            
+            do {
                 let detailResponse = try await fetchScreenshotDetail(
                     localIdentifier: localId
                 )
 
                 let detail = detailResponse.data
 
-                record.uploadStatus = "uploaded"
                 record.serverImageId = "\(detail.screenshotId)"
-                record.uploadedAt = Date()
 
                 let analysisDescriptor = FetchDescriptor<PhotoAnalysisRecord>(
                     predicate: #Predicate { $0.localIdentifier == localId }
@@ -117,13 +186,20 @@ final class PhotoUploadService {
 
                 let existingAnalysis = try? modelContext.fetch(analysisDescriptor).first
 
-                let analysis = existingAnalysis ?? PhotoAnalysisRecord(localIdentifier: localId)
+                let analysis = existingAnalysis ?? PhotoAnalysisRecord(
+                    localIdentifier: localId
+                )
 
                 analysis.serverImageId = "\(detail.screenshotId)"
                 analysis.category = detail.analysis?.category
                 analysis.ocrText = detail.ocrText
                 analysis.imageCreatedAt = asset.creationDate
-                analysis.analyzedAt = Date()
+
+                if let analyzedAtString = detail.analysis?.analyzedAt {
+                    analysis.analyzedAt = ISO8601DateFormatter().date(
+                        from: analyzedAtString
+                    )
+                }
 
                 if let items = detail.analysis?.items {
                     analysis.actionData = makeSummaryText(from: items)
@@ -135,16 +211,13 @@ final class PhotoUploadService {
                     modelContext.insert(analysis)
                 }
 
-                try modelContext.save()
-
-                print("사진 업로드 및 분석 결과 저장 성공:", localId)
-
-            } catch {
-                record.uploadStatus = "failed"
-                record.retryCount += 1
                 try? modelContext.save()
 
-                print("사진 업로드 실패:", localId, error.localizedDescription)
+                print("상세조회 및 분석 저장 성공:", localId)
+
+            } catch {
+                // 업로드는 성공했으므로 상태 변경 안 함
+                print("상세조회 실패:", localId, error.localizedDescription)
             }
         }
     }

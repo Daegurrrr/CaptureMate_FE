@@ -126,6 +126,18 @@ final class APIClient {
             response: response
         )
     }
+    
+    func uploadMultipartWithoutDecoding(
+        path: String,
+        multipart: MultipartFormData,
+        requiresAuth: Bool
+    ) async throws {
+        let data: EmptyResponse = try await uploadMultipart(
+            path: path,
+            multipart: multipart,
+            requiresAuth: requiresAuth
+        )
+    }
 
     private func addAuthorizationHeaderIfNeeded(
         to request: inout URLRequest,
