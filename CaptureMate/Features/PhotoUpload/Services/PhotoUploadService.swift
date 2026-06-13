@@ -233,6 +233,14 @@ final class PhotoUploadService {
             if let address = item.address {
                 parts.append(address)
             }
+            
+            if let latitude = item.latitude {
+                parts.append("latitude:\(latitude)")
+            }
+
+            if let longitude = item.longitude {
+                parts.append("longitude:\(longitude)")
+            }
 
             if let title = item.title {
                 parts.append(title)

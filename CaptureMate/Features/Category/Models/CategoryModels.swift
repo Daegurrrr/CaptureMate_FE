@@ -32,11 +32,15 @@ struct PlaceItem: Decodable {
     let placeName: String?
     let address: String?
     let mapURL: String?
+    let latitude: Double?
+    let longitude: Double?
 
     enum CodingKeys: String, CodingKey {
         case placeName = "place_name"
         case address
         case mapURL = "map_url"
+        case latitude
+        case longitude
     }
 }
 
