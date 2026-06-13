@@ -48,9 +48,18 @@ struct HomeView: View {
                                 action,
                                 modelContext: modelContext
                             )
+                        },
+                        onOpenExternalLink: { action in
+                            viewModel.markActionAsPendingOpened(action)
+                        },
+                        onCompleteAction: { action in
+                            viewModel.removeAction(
+                                action,
+                                modelContext: modelContext
+                            )
                         }
                     )
-                        .padding(.horizontal, 16)
+                    .padding(.horizontal, 16)
 
                     Spacer(minLength: 20)
                 }
@@ -70,7 +79,10 @@ struct HomeView: View {
                 for: UIApplication.willEnterForegroundNotification
             )
         ) { _ in
+            viewModel.completePendingOpenedActionIfNeeded(modelContext: modelContext)
             viewModel.loadTodayScreenshotCount()
+            viewModel.loadRecommendedActions(modelContext: modelContext)
+            viewModel.loadCategoryCounts(modelContext: modelContext)
         }
         .onReceive(
             NotificationCenter.default.publisher(
