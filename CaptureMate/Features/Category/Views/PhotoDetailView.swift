@@ -104,6 +104,11 @@ struct PhotoDetailView: View {
             }
         }
         .onAppear {
+            analysisRecord = nil
+            loadAnalysis()
+        }
+        .onChange(of: photo.id) {
+            analysisRecord = nil
             loadAnalysis()
         }
         .contentShape(Rectangle())
