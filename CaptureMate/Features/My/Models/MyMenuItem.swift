@@ -17,6 +17,4 @@ struct MyMenuItem: Identifiable {
 enum MyMenuType {
     case notificationSetting
     case permissionSetting
-    case logout
-    case withdraw
 }

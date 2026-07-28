@@ -40,6 +40,7 @@ struct CategoryPhotoGridView: View {
                         .frame(maxWidth: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .clipped()
+                        .id(item.id)
                         .onTapGesture {
                             selectedPhoto = item
                         }
