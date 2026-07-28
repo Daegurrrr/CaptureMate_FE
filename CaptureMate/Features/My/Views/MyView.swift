@@ -73,6 +73,24 @@ struct MyView: View {
             } label: {
                 menuLabel(item)
             }
+
+        case .logout:
+            Button {
+                viewModel.handleMenuTap(item) {
+                    session.logout()
+                }
+            } label: {
+                menuLabel(item)
+            }
+
+        case .withdraw:
+            Button {
+                viewModel.handleMenuTap(item) {
+                    session.logout()
+                }
+            } label: {
+                menuLabel(item)
+            }
         }
     }
 

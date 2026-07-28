@@ -11,8 +11,6 @@ struct RecommendedActionCard: View {
 
     let actions: [RecommendedAction]
     let onDelete: (RecommendedAction) -> Void
-    let onOpenExternalLink: (RecommendedAction) -> Void
-    let onCompleteAction: (RecommendedAction) -> Void
 
     @State private var pendingScheduleAction: RecommendedAction?
     @State private var showCalendarAlert = false
@@ -65,7 +63,6 @@ struct RecommendedActionCard: View {
                   let url = URL(string: urlString) else {
                 return
             }
-            onOpenExternalLink(action)
             UIApplication.shared.open(url)
 
         case .schedule:
@@ -95,10 +92,6 @@ struct RecommendedActionCard: View {
             )
 
             if success {
-                await MainActor.run {
-                    onCompleteAction(action)
-                }
-                
                 await CalendarService.shared.openCalendarApp(
                     at: startDate
                 )

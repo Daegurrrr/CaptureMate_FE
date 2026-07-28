@@ -17,7 +17,6 @@ final class HomeViewModel: ObservableObject {
     @Published var scheduleCount = 0
     @Published var memoCount = 0
     @Published var recommendedActions: [RecommendedAction] = []
-    private var pendingOpenedActionLocalIdentifier: String?
     
     func loadTodayScreenshotCount() {
         let calendar = Calendar.current
@@ -209,36 +208,6 @@ final class HomeViewModel: ObservableObject {
 
         } catch {
             print("추천액션 삭제 저장 실패:", error.localizedDescription)
-        }
-    }
-    
-    func markActionAsPendingOpened(_ action: RecommendedAction) {
-        pendingOpenedActionLocalIdentifier = action.localIdentifier
-    }
-
-    func completePendingOpenedActionIfNeeded(modelContext: ModelContext) {
-        guard let localIdentifier = pendingOpenedActionLocalIdentifier else {
-            return
-        }
-
-        let descriptor = FetchDescriptor<PhotoAnalysisRecord>(
-            predicate: #Predicate { $0.localIdentifier == localIdentifier }
-        )
-
-        do {
-            if let record = try modelContext.fetch(descriptor).first {
-                record.isActionCompleted = true
-                try modelContext.save()
-            }
-
-            recommendedActions.removeAll {
-                $0.localIdentifier == localIdentifier
-            }
-
-            pendingOpenedActionLocalIdentifier = nil
-
-        } catch {
-            print("추천 액션 자동 완료 처리 실패:", error.localizedDescription)
         }
     }
 }
