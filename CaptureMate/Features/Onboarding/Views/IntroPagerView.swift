@@ -59,18 +59,32 @@ struct IntroPagerView: View {
                 }
                 .padding(.top, 12)
 
-                Button {
-                    session.completeIntro()
-                } label: {
-                    Text("시작하기")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                HStack(spacing: 16) {
+                    NavigationLink(destination: LoginView()) {
+                        Text("로그인")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.blue)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color.blue, lineWidth: 0.5)
+                            )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink(destination: SignUpView()) {
+                        Text("새로 시작하기")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.blue)
+                            .clipShape(RoundedRectangle(cornerRadius: 30))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
                 .padding(.horizontal, 24)
                 .padding(.top, 28)
 

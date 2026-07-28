@@ -48,18 +48,9 @@ struct HomeView: View {
                                 action,
                                 modelContext: modelContext
                             )
-                        },
-                        onOpenExternalLink: { action in
-                            viewModel.markActionAsPendingOpened(action)
-                        },
-                        onCompleteAction: { action in
-                            viewModel.removeAction(
-                                action,
-                                modelContext: modelContext
-                            )
                         }
                     )
-                    .padding(.horizontal, 16)
+                        .padding(.horizontal, 16)
 
                     Spacer(minLength: 20)
                 }
@@ -79,10 +70,7 @@ struct HomeView: View {
                 for: UIApplication.willEnterForegroundNotification
             )
         ) { _ in
-            viewModel.completePendingOpenedActionIfNeeded(modelContext: modelContext)
             viewModel.loadTodayScreenshotCount()
-            viewModel.loadRecommendedActions(modelContext: modelContext)
-            viewModel.loadCategoryCounts(modelContext: modelContext)
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -157,33 +145,20 @@ struct HomeView: View {
         print("초기 권한 완료 여부:", hasCompleted)
         print("현재 저장된 스크린샷 시작 날짜:", startDate as Any)
 
-        if startDate != nil {
+        if hasCompleted, startDate != nil {
             return
         }
 
-        PhotoPermissionManager.shared.checkAuthorizationStatus { isPhotoAllowed in
-            if isPhotoAllowed {
-                showScreenshotStartDateDialog = true
-                return
+        NotificationPermissionManager.shared.requestInitialPermissionAfterSignUp { isNotificationAllowed in
+            if isNotificationAllowed {
+                LocalNotificationScheduler.shared.scheduleDailyCaptureCheckNotification()
             }
 
-            if hasCompleted {
-                return
-            }
-
-            NotificationPermissionManager.shared.requestInitialPermissionAfterSignUp { isNotificationAllowed in
-                if isNotificationAllowed {
-                    LocalNotificationScheduler.shared.scheduleDailyCaptureCheckNotification()
-                }
-
-                PhotoPermissionManager.shared.requestPermission { isPhotoAllowed in
-                    InitialPermissionFlowManager.shared.markCompleted()
-
-                    if isPhotoAllowed {
-                        showScreenshotStartDateDialog = true
-                    } else {
-                        showsPermissionAlert = true
-                    }
+            PhotoPermissionManager.shared.requestPermission { isPhotoAllowed in
+                if isPhotoAllowed {
+                    showScreenshotStartDateDialog = true
+                } else {
+                    showsPermissionAlert = true
                 }
             }
         }

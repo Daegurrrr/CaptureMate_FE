@@ -126,24 +126,20 @@ final class APIClient {
             response: response
         )
     }
-    
-    func uploadMultipartWithoutDecoding(
-        path: String,
-        multipart: MultipartFormData,
-        requiresAuth: Bool
-    ) async throws {
-        let data: EmptyResponse = try await uploadMultipart(
-            path: path,
-            multipart: multipart,
-            requiresAuth: requiresAuth
-        )
-    }
 
     private func addAuthorizationHeaderIfNeeded(
         to request: inout URLRequest,
         requiresAuth: Bool
     ) {
-        return
+        guard requiresAuth,
+              let accessToken = UserDefaults.standard.string(forKey: "accessToken") else {
+            return
+        }
+
+        request.setValue(
+            "Bearer \(accessToken)",
+            forHTTPHeaderField: "Authorization"
+        )
     }
 
     private func handleResponse<R: Decodable>(

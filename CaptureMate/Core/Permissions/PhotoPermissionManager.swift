@@ -13,21 +13,6 @@ final class PhotoPermissionManager {
 
     private init() {}
 
-    func checkAuthorizationStatus(completion: @escaping (Bool) -> Void) {
-        let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-
-        switch currentStatus {
-        case .authorized, .limited:
-            completion(true)
-
-        case .notDetermined, .denied, .restricted:
-            completion(false)
-
-        @unknown default:
-            completion(false)
-        }
-    }
-
     func requestPermission(completion: @escaping (Bool) -> Void) {
         let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
 

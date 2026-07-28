@@ -18,7 +18,7 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if session.hasSeenIntro {
+            if session.isLoggedIn {
                 MainTabView()
                     .task {
                         await startPhotoUploadFlow()
@@ -33,24 +33,26 @@ struct RootView: View {
                         }
                     }
 
-            } else {
+            } else if !session.hasSeenIntro {
                 IntroPagerView()
+
+            } else {
+                AuthEntryView()
             }
         }
     }
 
     private func startPhotoUploadFlow() async {
-        let hasCompleted = InitialPermissionFlowManager.shared.hasCompletedInitialPermission
-        let startDate = InitialPermissionFlowManager.shared.screenshotStartDate
-
-        guard hasCompleted, startDate != nil else {
-            print("초기 권한 플로우가 완료되지 않아 업로드 보류")
-            return
-        }
-
         PhotoPermissionManager.shared.requestPermission { isAllowed in
             guard isAllowed else {
                 print("사진 권한 없음")
+                return
+            }
+
+            let startDate = InitialPermissionFlowManager.shared.screenshotStartDate
+
+            guard startDate != nil else {
+                print("스크린샷 시작 날짜가 아직 없어 업로드 보류")
                 return
             }
 
