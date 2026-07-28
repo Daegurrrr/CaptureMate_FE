@@ -157,20 +157,33 @@ struct HomeView: View {
         print("초기 권한 완료 여부:", hasCompleted)
         print("현재 저장된 스크린샷 시작 날짜:", startDate as Any)
 
-        if hasCompleted, startDate != nil {
+        if startDate != nil {
             return
         }
 
-        NotificationPermissionManager.shared.requestInitialPermissionAfterSignUp { isNotificationAllowed in
-            if isNotificationAllowed {
-                LocalNotificationScheduler.shared.scheduleDailyCaptureCheckNotification()
+        PhotoPermissionManager.shared.checkAuthorizationStatus { isPhotoAllowed in
+            if isPhotoAllowed {
+                showScreenshotStartDateDialog = true
+                return
             }
 
-            PhotoPermissionManager.shared.requestPermission { isPhotoAllowed in
-                if isPhotoAllowed {
-                    showScreenshotStartDateDialog = true
-                } else {
-                    showsPermissionAlert = true
+            if hasCompleted {
+                return
+            }
+
+            NotificationPermissionManager.shared.requestInitialPermissionAfterSignUp { isNotificationAllowed in
+                if isNotificationAllowed {
+                    LocalNotificationScheduler.shared.scheduleDailyCaptureCheckNotification()
+                }
+
+                PhotoPermissionManager.shared.requestPermission { isPhotoAllowed in
+                    InitialPermissionFlowManager.shared.markCompleted()
+
+                    if isPhotoAllowed {
+                        showScreenshotStartDateDialog = true
+                    } else {
+                        showsPermissionAlert = true
+                    }
                 }
             }
         }
