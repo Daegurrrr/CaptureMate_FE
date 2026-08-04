@@ -12,6 +12,7 @@ import SwiftData
 @MainActor
 final class PhotoUploadService {
     private let photoAssetService = PhotoAssetService()
+    private let visionOCREngine = VisionOCREngine()
 
     func uploadPhoto(
         imageData: Data,
@@ -145,6 +146,11 @@ final class PhotoUploadService {
                     continue
                 }
 
+                await printVisionOCRDebugLog(
+                    imageData: imageData,
+                    localIdentifier: localId
+                )
+
                 record.uploadStatus = "uploading"
                 try? modelContext.save()
 
@@ -219,6 +225,31 @@ final class PhotoUploadService {
                 // 업로드는 성공했으므로 상태 변경 안 함
                 print("상세조회 실패:", localId, error.localizedDescription)
             }
+        }
+    }
+
+    private func printVisionOCRDebugLog(
+        imageData: Data,
+        localIdentifier: String
+    ) async {
+        do {
+            let items = try await visionOCREngine.recognize(imageData: imageData)
+            let rawText = OCRPipeline.buildRawText(from: items)
+            let processedText = OCRPipeline.buildClassificationText(from: items)
+
+            print("===== Apple Vision OCR 테스트 시작 =====")
+            print("localIdentifier:", localIdentifier)
+            print("[Raw OCR]")
+            print(rawText.isEmpty ? "텍스트 없음" : rawText)
+            print("[전처리 후 OCR]")
+            print(processedText.isEmpty ? "텍스트 없음" : processedText)
+            print("===== Apple Vision OCR 테스트 끝 =====")
+        } catch {
+            print(
+                "Apple Vision OCR 실패:",
+                localIdentifier,
+                error.localizedDescription
+            )
         }
     }
 

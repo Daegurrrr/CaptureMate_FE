@@ -24,3 +24,7 @@ Package.resolved
 # Secrets
 Secrets.xcconfig
 Secrets.plist
+
+# Local Codex context
+AGENTS.md
+CODEX_CONTEXT.md

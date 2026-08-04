@@ -9,6 +9,22 @@ import CoreGraphics
 import Foundation
 
 enum OCRPipeline {
+    static func buildRawText(from items: [OCRItem]) -> String {
+        items
+            .map(\.text)
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    static func buildClassificationText(from items: [OCRItem]) -> String {
+        let dedupedItems = OCRLayoutProcessor.removeDuplicateBoxes(from: items)
+        let filteredItems = dedupedItems.filter(OCRTextFilter.shouldKeepForClassification)
+        let rawLines = OCRLayoutProcessor.groupLinesByY(items: filteredItems)
+        let cleanedLines = cleanLines(rawLines)
+
+        return OCRTextBuilder.buildClassificationText(from: cleanedLines)
+    }
+
     static func buildClassificationText(
         from page: PaddleOCRPage,
         imageHeight: CGFloat
@@ -46,7 +62,13 @@ enum OCRPipeline {
         let dedupedItems = OCRLayoutProcessor.removeDuplicateBoxes(from: items)
         let filteredItems = dedupedItems.filter(OCRTextFilter.shouldKeepForClassification)
         let rawLines = OCRLayoutProcessor.groupLinesByY(items: filteredItems)
-        let cleanedLines = rawLines.filter { line in
+        let cleanedLines = cleanLines(rawLines)
+
+        return OCRTextBuilder.buildClassificationText(from: cleanedLines)
+    }
+
+    private static func cleanLines(_ lines: [String]) -> [String] {
+        lines.filter { line in
             let value = line.trimmingCharacters(in: .whitespacesAndNewlines)
 
             if OCRTextFilter.isStatusBarText(value) {
@@ -63,7 +85,5 @@ enum OCRPipeline {
 
             return true
         }
-
-        return OCRTextBuilder.buildClassificationText(from: cleanedLines)
     }
 }
