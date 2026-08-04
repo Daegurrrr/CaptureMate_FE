@@ -9,12 +9,6 @@ import Foundation
 import SwiftUI
 import Photos
 
-struct CategoryCaptureItem: Identifiable {
-    let id = UUID()
-    let imageName: String
-    let category: CaptureCategory
-}
-
 struct CategoryPhotoItem: Identifiable {
     let id: String
     let image: UIImage

@@ -5,13 +5,6 @@
 //  Created by 허채윤 on 5/24/26.
 //
 
-//
-//  APIClient.swift
-//  CaptureMate
-//
-//  Created by 허채윤 on 5/24/26.
-//
-
 import Foundation
 
 final class APIClient {
@@ -19,34 +12,9 @@ final class APIClient {
 
     private init() {}
 
-    func get<R: Decodable>(
-        path: String,
-        requiresAuth: Bool = false
-    ) async throws -> R {
-        guard let url = URL(string: APIConstants.baseURL + path) else {
-            throw NetworkError.badURL
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-
-        addAuthorizationHeaderIfNeeded(
-            to: &request,
-            requiresAuth: requiresAuth
-        )
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        return try handleResponse(
-            data: data,
-            response: response
-        )
-    }
-    
     func post<T: Encodable, R: Decodable>(
         path: String,
-        body: T,
-        requiresAuth: Bool = false
+        body: T
     ) async throws -> R {
         guard let url = URL(string: APIConstants.baseURL + path) else {
             throw NetworkError.badURL
@@ -60,35 +28,6 @@ final class APIClient {
         )
         request.httpBody = try JSONEncoder().encode(body)
 
-        addAuthorizationHeaderIfNeeded(
-            to: &request,
-            requiresAuth: requiresAuth
-        )
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        return try handleResponse(
-            data: data,
-            response: response
-        )
-    }
-    
-    func patch<R: Decodable>(
-        path: String,
-        requiresAuth: Bool = true
-    ) async throws -> R {
-        guard let url = URL(string: APIConstants.baseURL + path) else {
-            throw NetworkError.badURL
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
-
-        addAuthorizationHeaderIfNeeded(
-            to: &request,
-            requiresAuth: requiresAuth
-        )
-
         let (data, response) = try await URLSession.shared.data(for: request)
 
         return try handleResponse(
@@ -99,8 +38,7 @@ final class APIClient {
 
     func uploadMultipart<R: Decodable>(
         path: String,
-        multipart: MultipartFormData,
-        requiresAuth: Bool = true
+        multipart: MultipartFormData
     ) async throws -> R {
         guard let url = URL(string: APIConstants.baseURL + path) else {
             throw NetworkError.badURL
@@ -114,24 +52,12 @@ final class APIClient {
         )
         request.httpBody = multipart.body
 
-        addAuthorizationHeaderIfNeeded(
-            to: &request,
-            requiresAuth: requiresAuth
-        )
-
         let (data, response) = try await URLSession.shared.data(for: request)
 
         return try handleResponse(
             data: data,
             response: response
         )
-    }
-
-    private func addAuthorizationHeaderIfNeeded(
-        to request: inout URLRequest,
-        requiresAuth: Bool
-    ) {
-        return
     }
 
     private func handleResponse<R: Decodable>(
@@ -152,10 +78,6 @@ final class APIClient {
                 message: message,
                 statusCode: httpResponse.statusCode
             )
-        }
-
-        if R.self == EmptyResponse.self {
-            return EmptyResponse() as! R
         }
 
         do {

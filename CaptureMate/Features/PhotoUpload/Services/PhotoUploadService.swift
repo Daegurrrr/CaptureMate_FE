@@ -12,12 +12,11 @@ import SwiftData
 @MainActor
 final class PhotoUploadService {
     private let photoAssetService = PhotoAssetService()
-    private let visionOCREngine = VisionOCREngine()
 
-    func uploadPhoto(
+    func extractOCR(
         imageData: Data,
         localIdentifier: String
-    ) async throws -> PhotoUploadResponse {
+    ) async throws -> OCRResponse {
         var multipart = MultipartFormData()
 
         multipart.appendFile(
@@ -35,22 +34,40 @@ final class PhotoUploadService {
         multipart.finalize()
 
         return try await APIClient.shared.uploadMultipart(
-            path: "/screenshots",
-            multipart: multipart,
-            requiresAuth: false
+            path: "/ocr",
+            multipart: multipart
         )
     }
 
-    func fetchScreenshotDetail(
-        localIdentifier: String
-    ) async throws -> ScreenshotDetailResponse {
-        let encodedLocalId = localIdentifier.addingPercentEncoding(
-            withAllowedCharacters: .urlQueryAllowed
-        ) ?? localIdentifier
+    func classifyOCRText(
+        localIdentifier: String,
+        ocrText: String
+    ) async throws -> ClassifyResponse {
+        let request = ClassifyRequest(
+            localIdentifier: localIdentifier,
+            ocrText: ocrText
+        )
 
-        return try await APIClient.shared.get(
-            path: "/screenshots/detail?local_identifier=\(encodedLocalId)",
-            requiresAuth: false
+        return try await APIClient.shared.post(
+            path: "/classify",
+            body: request
+        )
+    }
+
+    func analyzeCategoryDetails(
+        localIdentifier: String,
+        ocrText: String,
+        category: String
+    ) async throws -> GeminiResponse {
+        let request = GeminiRequest(
+            localIdentifier: localIdentifier,
+            ocrText: ocrText,
+            category: category
+        )
+
+        return try await APIClient.shared.post(
+            path: "/gemini",
+            body: request
         )
     }
 
@@ -61,8 +78,15 @@ final class PhotoUploadService {
         print("업로드 시작 기준 날짜:", startDate as Any)
         print("업로드 대상 캡처 이미지 개수:", assets.count)
 
+        var processedLocalIdentifiers = Set<String>()
+
         for asset in assets {
             let localId = asset.localIdentifier
+
+            guard processedLocalIdentifiers.insert(localId).inserted else {
+                print("이번 업로드 목록 내 중복 사진 건너뜀:", localId)
+                continue
+            }
 
             let descriptor = FetchDescriptor<PhotoUploadRecord>(
                 predicate: #Predicate { $0.localIdentifier == localId }
@@ -71,10 +95,25 @@ final class PhotoUploadService {
             let existing = try? modelContext.fetch(descriptor)
             let existingRecord = existing?.first
 
-            if let existingRecord,
-               existingRecord.uploadStatus == "uploaded" {
-                print("이미 업로드 완료:", localId)
+            let existingAnalysis = fetchAnalysisRecord(
+                localIdentifier: localId,
+                modelContext: modelContext
+            )
+
+            if isCompletedAnalysis(existingAnalysis) {
+                if let existingRecord, existingRecord.uploadStatus != "analyzed" {
+                    existingRecord.uploadStatus = "analyzed"
+                    existingRecord.uploadedAt = existingAnalysis?.analyzedAt
+                    try? modelContext.save()
+                }
+
+                print("이미 OCR/분류/상세분석 결과 저장 완료, API 호출 건너뜀:", localId)
                 continue
+            }
+
+            if let existingRecord,
+               existingRecord.uploadStatus == "analyzed" {
+                print("분석 완료 상태지만 저장 결과가 없어 재분석:", localId)
             }
 
             let record = existingRecord ?? PhotoUploadRecord(localIdentifier: localId)
@@ -82,68 +121,109 @@ final class PhotoUploadService {
             if existingRecord == nil {
                 modelContext.insert(record)
             } else {
-                print("기존 업로드 실패/대기 기록 있음, 재시도:", localId)
+                print("기존 업로드 기록 있음, 상태 기준으로 재시도:", localId, record.uploadStatus)
             }
 
             do {
-                guard let imageData = await photoAssetService.getImageData(from: asset) else {
-                    record.uploadStatus = "failed"
-                    record.retryCount += 1
-                    try? modelContext.save()
-                    print("이미지 데이터 변환 실패:", localId)
-                    continue
-                }
-
-                await printVisionOCRDebugLog(
-                    imageData: imageData,
-                    localIdentifier: localId
-                )
-
-                record.uploadStatus = "uploading"
-                try? modelContext.save()
-
-                _ = try await uploadPhoto(
-                    imageData: imageData,
-                    localIdentifier: localId
-                )
-
-                let detailResponse = try await fetchScreenshotDetail(
-                    localIdentifier: localId
-                )
-
-                let detail = detailResponse.data
-
-                record.uploadStatus = "uploaded"
-                record.serverImageId = "\(detail.screenshotId)"
-                record.uploadedAt = Date()
-
-                let analysisDescriptor = FetchDescriptor<PhotoAnalysisRecord>(
-                    predicate: #Predicate { $0.localIdentifier == localId }
-                )
-
-                let existingAnalysis = try? modelContext.fetch(analysisDescriptor).first
-
                 let analysis = existingAnalysis ?? PhotoAnalysisRecord(localIdentifier: localId)
-
-                analysis.serverImageId = "\(detail.screenshotId)"
-                analysis.category = detail.analysis?.category
-                analysis.ocrText = detail.ocrText
-                analysis.imageCreatedAt = asset.creationDate
-                analysis.analyzedAt = Date()
-
-                if let items = detail.analysis?.items {
-                    analysis.actionData = makeSummaryText(from: items)
-                } else {
-                    analysis.actionData = nil
-                }
 
                 if existingAnalysis == nil {
                     modelContext.insert(analysis)
                 }
 
+                let ocrText: String
+                let category: String
+                var confidence: Double?
+                var confidenceLevel: String?
+
+                if record.uploadStatus == "classified",
+                   let savedOCRText = analysis.ocrText,
+                   !savedOCRText.isEmpty,
+                   let savedCategory = analysis.category,
+                   !savedCategory.isEmpty {
+                    print("분류 완료 상태 확인, 상세분석부터 재시도:", localId)
+                    ocrText = savedOCRText
+                    category = savedCategory
+                } else {
+                    if record.uploadStatus == "ocr_completed",
+                       let savedOCRText = analysis.ocrText,
+                       !savedOCRText.isEmpty {
+                        print("OCR 완료 상태 확인, 분류부터 재시도:", localId)
+                        ocrText = savedOCRText
+                    } else {
+                        guard let imageData = await photoAssetService.getImageData(from: asset) else {
+                            record.uploadStatus = "failed"
+                            record.retryCount += 1
+                            try? modelContext.save()
+                            print("이미지 데이터 변환 실패:", localId)
+                            continue
+                        }
+
+                        record.uploadStatus = "uploading"
+                        try? modelContext.save()
+
+                        let ocrResponse = try await extractOCR(
+                            imageData: imageData,
+                            localIdentifier: localId
+                        )
+
+                        analysis.serverImageId = nil
+                        analysis.ocrText = ocrResponse.ocrText
+                        analysis.imageCreatedAt = asset.creationDate
+
+                        record.uploadStatus = "ocr_completed"
+                        try modelContext.save()
+
+                        ocrText = ocrResponse.ocrText
+                    }
+
+                    let classifyResponse = try await classifyOCRText(
+                        localIdentifier: localId,
+                        ocrText: ocrText
+                    )
+
+                    analysis.category = classifyResponse.category
+                    record.uploadStatus = "classified"
+                    try modelContext.save()
+
+                    category = classifyResponse.category
+                    confidence = classifyResponse.confidence
+                    confidenceLevel = classifyResponse.confidenceLevel
+                }
+
+                let geminiResponse = try await analyzeCategoryDetails(
+                    localIdentifier: localId,
+                    ocrText: ocrText,
+                    category: category
+                )
+
+                record.uploadStatus = "analyzed"
+                record.serverImageId = nil
+                record.uploadedAt = Date()
+
+                analysis.serverImageId = nil
+                analysis.category = category
+                analysis.ocrText = ocrText
+                analysis.imageCreatedAt = asset.creationDate
+                analysis.analyzedAt = Date()
+                analysis.actionData = makeSummaryText(from: geminiResponse.result)
+
                 try modelContext.save()
 
-                print("사진 업로드 및 분석 결과 저장 성공:", localId)
+                verifySavedAnalysis(
+                    localIdentifier: localId,
+                    modelContext: modelContext
+                )
+
+                print(
+                    "PaddleOCR/분류 결과 저장 성공:",
+                    localId,
+                    category,
+                    confidence as Any,
+                    confidenceLevel as Any,
+                    "actionDataLength:",
+                    analysis.actionData?.count ?? 0
+                )
 
             } catch {
                 record.uploadStatus = "failed"
@@ -155,29 +235,68 @@ final class PhotoUploadService {
         }
     }
 
-    private func printVisionOCRDebugLog(
-        imageData: Data,
-        localIdentifier: String
-    ) async {
-        do {
-            let items = try await visionOCREngine.recognize(imageData: imageData)
-            let rawText = OCRPipeline.buildRawText(from: items)
-            let processedText = OCRPipeline.buildClassificationText(from: items)
+    private func fetchAnalysisRecord(
+        localIdentifier: String,
+        modelContext: ModelContext
+    ) -> PhotoAnalysisRecord? {
+        let descriptor = FetchDescriptor<PhotoAnalysisRecord>(
+            predicate: #Predicate { $0.localIdentifier == localIdentifier }
+        )
 
-            print("===== Apple Vision OCR 테스트 시작 =====")
-            print("localIdentifier:", localIdentifier)
-            print("[Raw OCR]")
-            print(rawText.isEmpty ? "텍스트 없음" : rawText)
-            print("[전처리 후 OCR]")
-            print(processedText.isEmpty ? "텍스트 없음" : processedText)
-            print("===== Apple Vision OCR 테스트 끝 =====")
-        } catch {
-            print(
-                "Apple Vision OCR 실패:",
-                localIdentifier,
-                error.localizedDescription
-            )
+        return try? modelContext.fetch(descriptor).first
+    }
+
+    private func isCompletedAnalysis(_ analysis: PhotoAnalysisRecord?) -> Bool {
+        guard let analysis else {
+            return false
         }
+
+        return analysis.analyzedAt != nil
+            && !(analysis.category?.isEmpty ?? true)
+            && !(analysis.ocrText?.isEmpty ?? true)
+    }
+
+    private func verifySavedAnalysis(
+        localIdentifier: String,
+        modelContext: ModelContext
+    ) {
+        let descriptor = FetchDescriptor<PhotoAnalysisRecord>(
+            predicate: #Predicate { $0.localIdentifier == localIdentifier }
+        )
+
+        guard let saved = try? modelContext.fetch(descriptor).first else {
+            print("앱 DB 저장 확인 실패:", localIdentifier)
+            return
+        }
+
+        print(
+            "앱 DB 저장 확인:",
+            saved.localIdentifier,
+            "category:",
+            saved.category ?? "nil",
+            "ocrTextLength:",
+            saved.ocrText?.count ?? 0
+        )
+    }
+
+    private func makeSummaryText(from result: GeminiAnalysisResult) -> String? {
+        if let items = result.items, !items.isEmpty {
+            let summary = makeSummaryText(from: items)
+            return summary.isEmpty ? nil : summary
+        }
+
+        var parts: [String] = []
+
+        if let title = result.title, !title.isEmpty {
+            parts.append(title)
+        }
+
+        if let content = result.content, !content.isEmpty {
+            parts.append(content)
+        }
+
+        let summary = parts.joined(separator: "\n")
+        return summary.isEmpty ? nil : summary
     }
 
     private func makeSummaryText(from items: [ScreenshotSummaryItem]) -> String {
