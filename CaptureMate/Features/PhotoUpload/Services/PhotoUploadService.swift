@@ -35,8 +35,7 @@ final class PhotoUploadService {
 
         return try await APIClient.shared.uploadMultipart(
             path: "/ocr",
-            multipart: multipart,
-            requiresAuth: false
+            multipart: multipart
         )
     }
 
@@ -51,8 +50,7 @@ final class PhotoUploadService {
 
         return try await APIClient.shared.post(
             path: "/classify",
-            body: request,
-            requiresAuth: false
+            body: request
         )
     }
 
@@ -69,8 +67,7 @@ final class PhotoUploadService {
 
         return try await APIClient.shared.post(
             path: "/gemini",
-            body: request,
-            requiresAuth: false
+            body: request
         )
     }
 
