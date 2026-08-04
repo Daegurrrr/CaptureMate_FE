@@ -80,10 +80,6 @@ final class APIClient {
             )
         }
 
-        if R.self == EmptyResponse.self {
-            return EmptyResponse() as! R
-        }
-
         do {
             return try JSONDecoder().decode(R.self, from: data)
         } catch {
