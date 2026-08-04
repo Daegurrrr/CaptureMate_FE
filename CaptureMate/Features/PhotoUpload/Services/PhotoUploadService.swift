@@ -37,7 +37,7 @@ final class PhotoUploadService {
         return try await APIClient.shared.uploadMultipart(
             path: "/screenshots",
             multipart: multipart,
-            requiresAuth: true
+            requiresAuth: false
         )
     }
 
@@ -50,7 +50,7 @@ final class PhotoUploadService {
 
         return try await APIClient.shared.get(
             path: "/screenshots/detail?local_identifier=\(encodedLocalId)",
-            requiresAuth: true
+            requiresAuth: false
         )
     }
 

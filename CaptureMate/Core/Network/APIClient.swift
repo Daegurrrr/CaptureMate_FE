@@ -131,15 +131,7 @@ final class APIClient {
         to request: inout URLRequest,
         requiresAuth: Bool
     ) {
-        guard requiresAuth,
-              let accessToken = UserDefaults.standard.string(forKey: "accessToken") else {
-            return
-        }
-
-        request.setValue(
-            "Bearer \(accessToken)",
-            forHTTPHeaderField: "Authorization"
-        )
+        return
     }
 
     private func handleResponse<R: Decodable>(
