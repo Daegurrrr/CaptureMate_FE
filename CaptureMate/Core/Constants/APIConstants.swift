@@ -6,5 +6,5 @@
 //
 
 enum APIConstants {
-    static let baseURL = "http://172.20.10.5:8000"
+    static let baseURL = "http://localhost:8000"
 }

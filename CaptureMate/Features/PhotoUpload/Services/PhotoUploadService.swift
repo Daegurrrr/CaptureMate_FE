@@ -12,12 +12,11 @@ import SwiftData
 @MainActor
 final class PhotoUploadService {
     private let photoAssetService = PhotoAssetService()
-    private let visionOCREngine = VisionOCREngine()
 
-    func uploadPhoto(
+    func extractOCR(
         imageData: Data,
         localIdentifier: String
-    ) async throws -> PhotoUploadResponse {
+    ) async throws -> OCRResponse {
         var multipart = MultipartFormData()
 
         multipart.appendFile(
@@ -35,21 +34,8 @@ final class PhotoUploadService {
         multipart.finalize()
 
         return try await APIClient.shared.uploadMultipart(
-            path: "/screenshots",
+            path: "/ocr",
             multipart: multipart,
-            requiresAuth: false
-        )
-    }
-
-    func fetchScreenshotDetail(
-        localIdentifier: String
-    ) async throws -> ScreenshotDetailResponse {
-        let encodedLocalId = localIdentifier.addingPercentEncoding(
-            withAllowedCharacters: .urlQueryAllowed
-        ) ?? localIdentifier
-
-        return try await APIClient.shared.get(
-            path: "/screenshots/detail?local_identifier=\(encodedLocalId)",
             requiresAuth: false
         )
     }
@@ -94,27 +80,16 @@ final class PhotoUploadService {
                     continue
                 }
 
-                await printVisionOCRDebugLog(
-                    imageData: imageData,
-                    localIdentifier: localId
-                )
-
                 record.uploadStatus = "uploading"
                 try? modelContext.save()
 
-                _ = try await uploadPhoto(
+                let ocrResponse = try await extractOCR(
                     imageData: imageData,
                     localIdentifier: localId
                 )
 
-                let detailResponse = try await fetchScreenshotDetail(
-                    localIdentifier: localId
-                )
-
-                let detail = detailResponse.data
-
-                record.uploadStatus = "uploaded"
-                record.serverImageId = "\(detail.screenshotId)"
+                record.uploadStatus = "ocr_completed"
+                record.serverImageId = nil
                 record.uploadedAt = Date()
 
                 let analysisDescriptor = FetchDescriptor<PhotoAnalysisRecord>(
@@ -125,17 +100,12 @@ final class PhotoUploadService {
 
                 let analysis = existingAnalysis ?? PhotoAnalysisRecord(localIdentifier: localId)
 
-                analysis.serverImageId = "\(detail.screenshotId)"
-                analysis.category = detail.analysis?.category
-                analysis.ocrText = detail.ocrText
+                analysis.serverImageId = nil
+                analysis.category = nil
+                analysis.ocrText = ocrResponse.ocrText
                 analysis.imageCreatedAt = asset.creationDate
-                analysis.analyzedAt = Date()
-
-                if let items = detail.analysis?.items {
-                    analysis.actionData = makeSummaryText(from: items)
-                } else {
-                    analysis.actionData = nil
-                }
+                analysis.analyzedAt = nil
+                analysis.actionData = nil
 
                 if existingAnalysis == nil {
                     modelContext.insert(analysis)
@@ -143,7 +113,7 @@ final class PhotoUploadService {
 
                 try modelContext.save()
 
-                print("사진 업로드 및 분석 결과 저장 성공:", localId)
+                print("PaddleOCR 결과 저장 성공:", localId)
 
             } catch {
                 record.uploadStatus = "failed"
@@ -152,31 +122,6 @@ final class PhotoUploadService {
 
                 print("사진 업로드 실패:", localId, error.localizedDescription)
             }
-        }
-    }
-
-    private func printVisionOCRDebugLog(
-        imageData: Data,
-        localIdentifier: String
-    ) async {
-        do {
-            let items = try await visionOCREngine.recognize(imageData: imageData)
-            let rawText = OCRPipeline.buildRawText(from: items)
-            let processedText = OCRPipeline.buildClassificationText(from: items)
-
-            print("===== Apple Vision OCR 테스트 시작 =====")
-            print("localIdentifier:", localIdentifier)
-            print("[Raw OCR]")
-            print(rawText.isEmpty ? "텍스트 없음" : rawText)
-            print("[전처리 후 OCR]")
-            print(processedText.isEmpty ? "텍스트 없음" : processedText)
-            print("===== Apple Vision OCR 테스트 끝 =====")
-        } catch {
-            print(
-                "Apple Vision OCR 실패:",
-                localIdentifier,
-                error.localizedDescription
-            )
         }
     }
 
