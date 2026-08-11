@@ -13,10 +13,10 @@ import SwiftData
 final class PhotoUploadService {
     private let photoAssetService = PhotoAssetService()
 
-    func extractOCR(
+    func classifyImage(
         imageData: Data,
         localIdentifier: String
-    ) async throws -> OCRResponse {
+    ) async throws -> ClassifyResponse {
         var multipart = MultipartFormData()
 
         multipart.appendFile(
@@ -34,23 +34,8 @@ final class PhotoUploadService {
         multipart.finalize()
 
         return try await APIClient.shared.uploadMultipart(
-            path: "/ocr",
-            multipart: multipart
-        )
-    }
-
-    func classifyOCRText(
-        localIdentifier: String,
-        ocrText: String
-    ) async throws -> ClassifyResponse {
-        let request = ClassifyRequest(
-            localIdentifier: localIdentifier,
-            ocrText: ocrText
-        )
-
-        return try await APIClient.shared.post(
             path: "/classify",
-            body: request
+            multipart: multipart
         )
     }
 
@@ -145,47 +130,31 @@ final class PhotoUploadService {
                     ocrText = savedOCRText
                     category = savedCategory
                 } else {
-                    if record.uploadStatus == "ocr_completed",
-                       let savedOCRText = analysis.ocrText,
-                       !savedOCRText.isEmpty {
-                        print("OCR 완료 상태 확인, 분류부터 재시도:", localId)
-                        ocrText = savedOCRText
-                    } else {
-                        guard let imageData = await photoAssetService.getImageData(from: asset) else {
-                            record.uploadStatus = "failed"
-                            record.retryCount += 1
-                            try? modelContext.save()
-                            print("이미지 데이터 변환 실패:", localId)
-                            continue
-                        }
-
-                        record.uploadStatus = "uploading"
+                    guard let imageData = await photoAssetService.getImageData(from: asset) else {
+                        record.uploadStatus = "failed"
+                        record.retryCount += 1
                         try? modelContext.save()
-
-                        let ocrResponse = try await extractOCR(
-                            imageData: imageData,
-                            localIdentifier: localId
-                        )
-
-                        analysis.serverImageId = nil
-                        analysis.ocrText = ocrResponse.ocrText
-                        analysis.imageCreatedAt = asset.creationDate
-
-                        record.uploadStatus = "ocr_completed"
-                        try modelContext.save()
-
-                        ocrText = ocrResponse.ocrText
+                        print("이미지 데이터 변환 실패:", localId)
+                        continue
                     }
 
-                    let classifyResponse = try await classifyOCRText(
-                        localIdentifier: localId,
-                        ocrText: ocrText
+                    record.uploadStatus = "uploading"
+                    try? modelContext.save()
+
+                    let classifyResponse = try await classifyImage(
+                        imageData: imageData,
+                        localIdentifier: localId
                     )
 
+                    analysis.serverImageId = nil
+                    analysis.ocrText = classifyResponse.ocrText
+                    analysis.imageCreatedAt = asset.creationDate
                     analysis.category = classifyResponse.category
+
                     record.uploadStatus = "classified"
                     try modelContext.save()
 
+                    ocrText = classifyResponse.ocrText
                     category = classifyResponse.category
                     confidence = classifyResponse.confidence
                     confidenceLevel = classifyResponse.confidenceLevel
@@ -206,7 +175,10 @@ final class PhotoUploadService {
                 analysis.ocrText = ocrText
                 analysis.imageCreatedAt = asset.creationDate
                 analysis.analyzedAt = Date()
-                analysis.actionData = makeSummaryText(from: geminiResponse.result)
+                analysis.actionData = makeSummaryText(
+                    from: geminiResponse.result,
+                    category: category
+                )
 
                 try modelContext.save()
 
@@ -216,7 +188,7 @@ final class PhotoUploadService {
                 )
 
                 print(
-                    "PaddleOCR/분류 결과 저장 성공:",
+                    "분류/Gemini 분석 결과 저장 성공:",
                     localId,
                     category,
                     confidence as Any,
@@ -254,6 +226,7 @@ final class PhotoUploadService {
         return analysis.analyzedAt != nil
             && !(analysis.category?.isEmpty ?? true)
             && !(analysis.ocrText?.isEmpty ?? true)
+            && !(analysis.actionData?.isEmpty ?? true)
     }
 
     private func verifySavedAnalysis(
@@ -279,79 +252,208 @@ final class PhotoUploadService {
         )
     }
 
-    private func makeSummaryText(from result: GeminiAnalysisResult) -> String? {
+    private func makeSummaryText(
+        from result: GeminiAnalysisResult,
+        category: String
+    ) -> String? {
         if let items = result.items, !items.isEmpty {
-            let summary = makeSummaryText(from: items)
+            let summary = makeSummaryText(from: items, category: category)
             return summary.isEmpty ? nil : summary
         }
 
         var parts: [String] = []
 
         if let title = result.title, !title.isEmpty {
-            parts.append(title)
+            parts.append("제목: \(title)")
         }
 
         if let content = result.content, !content.isEmpty {
-            parts.append(content)
+            parts.append("내용: \(content)")
         }
+
+        parts.append(contentsOf: makeAdditionalSummaryText(from: result.additionalFields))
 
         let summary = parts.joined(separator: "\n")
         return summary.isEmpty ? nil : summary
     }
 
-    private func makeSummaryText(from items: [ScreenshotSummaryItem]) -> String {
-        items.map { item in
+    private func makeSummaryText(
+        from items: [ScreenshotSummaryItem],
+        category: String
+    ) -> String {
+        let normalizedCategory = normalizedCategory(category)
+
+        return items.map { item in
             var parts: [String] = []
 
-            if let placeName = item.placeName {
-                parts.append(placeName)
-            }
+            switch normalizedCategory {
+            case "장소":
+                if let placeName = item.placeName {
+                    parts.append("장소명: \(placeName)")
+                }
 
-            if let address = item.address {
-                parts.append(address)
-            }
+                if let address = item.address {
+                    parts.append("주소: \(address)")
+                }
 
-            if let title = item.title {
-                parts.append(title)
-            }
+                if let latitude = item.latitude,
+                   let longitude = item.longitude {
+                    parts.append("좌표: \(latitude), \(longitude)")
+                }
 
-            if let startAt = item.startAt {
-                parts.append(formatDate(startAt))
-            }
+                if let mapProvider = item.mapProvider {
+                    parts.append("지도 제공: \(mapProvider)")
+                }
 
-            if let endAt = item.endAt {
-                parts.append(formatDate(endAt))
-            }
+                if let mapUrl = item.mapUrl {
+                    parts.append("지도 링크: \(mapUrl)")
+                }
 
-            if let productName = item.productName {
-                parts.append(productName)
-            }
+                parts.append(contentsOf: makeAdditionalSummaryText(from: item.additionalFields))
 
-            if let content = item.content {
-                parts.append(content)
-            }
-            
-            if let mapUrl = item.mapUrl {
-                parts.append(mapUrl)
-            }
+            case "쇼핑":
+                if let productName = item.productName {
+                    parts.append("상품명: \(productName)")
+                }
 
-            if let shoppingUrl = item.shoppingUrl {
-                parts.append(shoppingUrl)
+                if let shoppingUrl = item.shoppingUrl {
+                    parts.append("쇼핑 링크: \(shoppingUrl)")
+                }
+
+                if let brandSearchUrl = item.brandSearchUrl {
+                    parts.append("브랜드 링크: \(brandSearchUrl)")
+                }
+
+                parts.append(contentsOf: makeAdditionalSummaryText(from: item.additionalFields))
+
+            case "일정":
+                if let title = item.title {
+                    parts.append("일정명: \(title)")
+                }
+
+                if let startAt = item.startAt {
+                    parts.append("시작: \(formatDate(startAt))")
+                }
+
+                if let endAt = item.endAt {
+                    parts.append("종료: \(formatDate(endAt))")
+                }
+
+                parts.append(contentsOf: makeAdditionalSummaryText(from: item.additionalFields))
+
+            default:
+                if let title = item.title {
+                    parts.append("제목: \(title)")
+                }
+
+                if let content = item.content {
+                    parts.append("내용: \(content)")
+                }
+
+                parts.append(contentsOf: makeAdditionalSummaryText(from: item.additionalFields))
             }
 
             return parts.joined(separator: "\n")
         }
         .joined(separator: "\n\n")
     }
+
+    private func makeAdditionalSummaryText(
+        from fields: [String: JSONValue]
+    ) -> [String] {
+        let hiddenKeys: Set<String> = [
+            "corrected_place_name",
+            "map_query",
+            "brand_name",
+            "search_query"
+        ]
+
+        return fields
+            .filter { !hiddenKeys.contains($0.key) }
+            .sorted { $0.key < $1.key }
+            .compactMap { key, value in
+                guard let displayText = value.displayText else {
+                    return nil
+                }
+
+                return "\(displayName(for: key)): \(displayText)"
+            }
+    }
+
+    private func displayName(for key: String) -> String {
+        switch key {
+        case "place_name":
+            return "장소명"
+        case "address":
+            return "주소"
+        case "latitude":
+            return "위도"
+        case "longitude":
+            return "경도"
+        case "map_url":
+            return "지도 링크"
+        case "map_provider":
+            return "지도 제공"
+        case "product_name":
+            return "상품명"
+        case "shopping_url":
+            return "쇼핑 링크"
+        case "brand_search_url":
+            return "브랜드 링크"
+        case "title":
+            return "제목"
+        case "content":
+            return "내용"
+        case "start_at":
+            return "시작"
+        case "end_at":
+            return "종료"
+        default:
+            return key
+                .replacingOccurrences(of: "_", with: " ")
+        }
+    }
+
+    private func normalizedCategory(_ category: String) -> String {
+        switch category.lowercased() {
+        case "place":
+            return "장소"
+        case "shopping":
+            return "쇼핑"
+        case "schedule":
+            return "일정"
+        case "memo":
+            return "메모"
+        case "unknown":
+            return "기타"
+        default:
+            return category
+        }
+    }
     
     private func formatDate(_ text: String) -> String {
         let formatter = ISO8601DateFormatter()
 
-        guard let date = formatter.date(from: text) else {
-            return text
+        if let date = formatter.date(from: text) {
+            return displayDate(from: date)
         }
 
+        let simpleISOFormatter = DateFormatter()
+        simpleISOFormatter.locale = Locale(identifier: "ko_KR")
+        simpleISOFormatter.timeZone = TimeZone.current
+        simpleISOFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+
+        if let date = simpleISOFormatter.date(from: text) {
+            return displayDate(from: date)
+        }
+
+        return text
+    }
+
+    private func displayDate(from date: Date) -> String {
         let output = DateFormatter()
+        output.locale = Locale(identifier: "ko_KR")
+        output.timeZone = TimeZone.current
         output.dateFormat = "yyyy.MM.dd HH:mm"
 
         return output.string(from: date)

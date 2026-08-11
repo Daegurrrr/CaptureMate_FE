@@ -39,11 +39,21 @@ struct PhotoDetailView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 30))
-                            .foregroundColor(.white)
-                            .padding()
+                        Image(systemName: "xmark")
+                            .font(.system(size: 19, weight: .bold))
+                            .foregroundColor(.black)
+                            .frame(width: 44, height: 44)
+                            .background(Color.white)
+                            .clipShape(Circle())
+                            .shadow(
+                                color: .black.opacity(0.18),
+                                radius: 8,
+                                x: 0,
+                                y: 3
+                            )
                     }
+                    .padding(.top, 12)
+                    .padding(.trailing, 14)
                 }
 
                 Spacer()
@@ -68,9 +78,17 @@ struct PhotoDetailView: View {
 
                         if let actionData = analysisRecord?.actionData,
                            !actionData.isEmpty {
-                            Text(actionData)
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
+                            ScrollView {
+                                Text(actionData)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                                    .lineSpacing(4)
+                                    .frame(
+                                        maxWidth: .infinity,
+                                        alignment: .leading
+                                    )
+                            }
+                            .frame(maxHeight: 220)
                         } else {
                             Text("저장된 분석 결과가 없어요.")
                                 .font(.system(size: 13))
