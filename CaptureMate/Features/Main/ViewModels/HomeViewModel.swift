@@ -94,7 +94,11 @@ final class HomeViewModel: ObservableObject {
                     switch category {
                     case "장소":
                         let title = lines.first ?? "감지된 장소"
-                        let url = lines.first { $0.contains("http") }
+                        let address = lines.dropFirst().first {
+                            !$0.contains("http")
+                        }
+                        let mapURL = lines.first { $0.contains("http") }
+                        let searchQuery = address ?? title
 
                         return RecommendedAction(
                             localIdentifier: record.localIdentifier,
@@ -102,7 +106,14 @@ final class HomeViewModel: ObservableObject {
                             title: title,
                             subtitle: "장소 바로가기",
                             type: .place,
-                            url: url,
+                            url: mapURL ?? kakaoMapSearchURL(
+                                query: searchQuery,
+                                useAppScheme: true
+                            ),
+                            fallbackURL: mapURL == nil ? kakaoMapSearchURL(
+                                query: searchQuery,
+                                useAppScheme: false
+                            ) : nil,
                             startDate: nil,
                             endDate: nil
                         )
@@ -118,6 +129,7 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "상품 보러가기",
                             type: .shopping,
                             url: url,
+                            fallbackURL: nil,
                             startDate: nil,
                             endDate: nil
                         )
@@ -144,6 +156,7 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "캘린더에 추가하기",
                             type: .schedule,
                             url: nil,
+                            fallbackURL: nil,
                             startDate: startDate,
                             endDate: endDate
                         )
@@ -184,6 +197,23 @@ final class HomeViewModel: ObservableObject {
         dateOnlyFormatter.dateFormat = "yyyy-MM-dd"
 
         return dateOnlyFormatter.date(from: text)
+    }
+
+    private func kakaoMapSearchURL(
+        query: String,
+        useAppScheme: Bool
+    ) -> String? {
+        guard let encodedQuery = query.addingPercentEncoding(
+            withAllowedCharacters: .urlQueryAllowed
+        ) else {
+            return nil
+        }
+
+        if useAppScheme {
+            return "kakaomap://search?q=\(encodedQuery)"
+        }
+
+        return "https://m.map.kakao.com/scheme/search?q=\(encodedQuery)"
     }
     
     func removeAction(

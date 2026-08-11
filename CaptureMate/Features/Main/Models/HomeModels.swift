@@ -24,6 +24,7 @@ struct RecommendedAction: Identifiable {
 
     let type: ActionType
     let url: String?
+    let fallbackURL: String?
     let startDate: Date?
     let endDate: Date?
 }

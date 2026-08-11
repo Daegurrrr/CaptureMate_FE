@@ -58,9 +58,26 @@ struct RecommendedActionCard: View {
     private func handleAction(_ action: RecommendedAction) {
         switch action.type {
 
-        case .place, .shopping:
+        case .place:
             guard let urlString = action.url,
                   let url = URL(string: urlString) else {
+                print("장소 추천 액션 URL 없음:", action.title)
+                return
+            }
+            UIApplication.shared.open(url) { success in
+                guard !success,
+                      let fallbackURLString = action.fallbackURL,
+                      let fallbackURL = URL(string: fallbackURLString) else {
+                    return
+                }
+
+                UIApplication.shared.open(fallbackURL)
+            }
+
+        case .shopping:
+            guard let urlString = action.url,
+                  let url = URL(string: urlString) else {
+                print("쇼핑 추천 액션 URL 없음:", action.title)
                 return
             }
             UIApplication.shared.open(url)
