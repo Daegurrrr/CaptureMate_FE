@@ -93,8 +93,16 @@ final class HomeViewModel: ObservableObject {
 
                     switch category {
                     case "장소":
-                        let title = lines.first ?? "감지된 장소"
-                        let url = lines.first { $0.contains("http") }
+                        let title = lines
+                            .first(where: { $0.hasPrefix("장소명:") })
+                            .map { displayValue(from: $0) }
+                            ?? lines.first.map { displayValue(from: $0) }
+                            ?? "감지된 장소"
+                        let address = lines.dropFirst().first {
+                            $0.hasPrefix("주소:")
+                        }.map { displayValue(from: $0) }
+                        let mapURL = extractFirstURL(from: lines)
+                        let searchQuery = address ?? title
 
                         return RecommendedAction(
                             localIdentifier: record.localIdentifier,
@@ -102,14 +110,25 @@ final class HomeViewModel: ObservableObject {
                             title: title,
                             subtitle: "장소 바로가기",
                             type: .place,
-                            url: url,
+                            url: mapURL ?? kakaoMapSearchURL(
+                                query: searchQuery,
+                                useAppScheme: true
+                            ),
+                            fallbackURL: mapURL == nil ? kakaoMapSearchURL(
+                                query: searchQuery,
+                                useAppScheme: false
+                            ) : nil,
                             startDate: nil,
                             endDate: nil
                         )
 
                     case "쇼핑":
-                        let title = lines.first ?? "감지된 상품"
-                        let url = lines.first { $0.contains("http") }
+                        let title = lines
+                            .first(where: { $0.hasPrefix("상품명:") })
+                            .map { displayValue(from: $0) }
+                            ?? lines.first.map { displayValue(from: $0) }
+                            ?? "감지된 상품"
+                        let url = extractFirstURL(from: lines)
 
                         return RecommendedAction(
                             localIdentifier: record.localIdentifier,
@@ -118,24 +137,35 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "상품 보러가기",
                             type: .shopping,
                             url: url,
+                            fallbackURL: nil,
                             startDate: nil,
                             endDate: nil
                         )
 
                     case "일정":
-                        let title = lines.first ?? "감지된 일정"
+                        let title = lines
+                            .first(where: { $0.hasPrefix("일정명:") })
+                            .map { displayValue(from: $0) }
+                            ?? lines.first.map { displayValue(from: $0) }
+                            ?? "감지된 일정"
 
                         let startDate = lines
+                            .first(where: { $0.hasPrefix("시작:") })
+                            .flatMap { parseDate(from: $0) }
+                            ?? lines
                             .compactMap { parseDate(from: $0) }
                             .first
 
-                        let endDate = startDate.flatMap {
-                            Calendar.current.date(
-                                byAdding: .hour,
-                                value: 1,
-                                to: $0
-                            )
-                        }
+                        let endDate = lines
+                            .first(where: { $0.hasPrefix("종료:") })
+                            .flatMap { parseDate(from: $0) }
+                            ?? startDate.flatMap {
+                                Calendar.current.date(
+                                    byAdding: .hour,
+                                    value: 1,
+                                    to: $0
+                                )
+                            }
 
                         return RecommendedAction(
                             localIdentifier: record.localIdentifier,
@@ -144,6 +174,7 @@ final class HomeViewModel: ObservableObject {
                             subtitle: "캘린더에 추가하기",
                             type: .schedule,
                             url: nil,
+                            fallbackURL: nil,
                             startDate: startDate,
                             endDate: endDate
                         )
@@ -159,6 +190,8 @@ final class HomeViewModel: ObservableObject {
     }
     
     private func parseDate(from text: String) -> Date? {
+        let text = displayValue(from: text)
+
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.formatOptions = [
             .withInternetDateTime,
@@ -183,7 +216,60 @@ final class HomeViewModel: ObservableObject {
         dateOnlyFormatter.timeZone = TimeZone.current
         dateOnlyFormatter.dateFormat = "yyyy-MM-dd"
 
-        return dateOnlyFormatter.date(from: text)
+        if let date = dateOnlyFormatter.date(from: text) {
+            return date
+        }
+
+        let displayFormatter = DateFormatter()
+        displayFormatter.locale = Locale(identifier: "ko_KR")
+        displayFormatter.timeZone = TimeZone.current
+        displayFormatter.dateFormat = "yyyy.MM.dd HH:mm"
+
+        return displayFormatter.date(from: text)
+    }
+
+    private func displayValue(from text: String) -> String {
+        guard let separatorRange = text.range(of: ":") else {
+            return text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        return String(text[separatorRange.upperBound...])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func extractFirstURL(from lines: [String]) -> String? {
+        lines.compactMap(extractURL).first
+    }
+
+    private func extractURL(from text: String) -> String? {
+        let pattern = #"(https?://|kakaomap://)[^\s]+"#
+
+        guard let range = text.range(
+            of: pattern,
+            options: .regularExpression
+        ) else {
+            return nil
+        }
+
+        return String(text[range])
+            .trimmingCharacters(in: CharacterSet(charactersIn: ".,)]}"))
+    }
+
+    private func kakaoMapSearchURL(
+        query: String,
+        useAppScheme: Bool
+    ) -> String? {
+        guard let encodedQuery = query.addingPercentEncoding(
+            withAllowedCharacters: .urlQueryAllowed
+        ) else {
+            return nil
+        }
+
+        if useAppScheme {
+            return "kakaomap://search?q=\(encodedQuery)"
+        }
+
+        return "https://m.map.kakao.com/scheme/search?q=\(encodedQuery)"
     }
     
     func removeAction(

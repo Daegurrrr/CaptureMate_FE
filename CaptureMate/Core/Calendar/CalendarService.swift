@@ -17,23 +17,36 @@ final class CalendarService {
 
     private init() {}
 
+    enum SaveResult {
+        case success
+        case permissionDenied
+        case failure
+    }
+
     func addEvent(
         title: String,
         startDate: Date,
         endDate: Date
     ) async -> Bool {
+        await addEventWithResult(
+            title: title,
+            startDate: startDate,
+            endDate: endDate
+        ) == .success
+    }
+
+    func addEventWithResult(
+        title: String,
+        startDate: Date,
+        endDate: Date
+    ) async -> SaveResult {
+
+        guard await requestCalendarAccessIfNeeded() else {
+            print("캘린더 권한 없음")
+            return .permissionDenied
+        }
 
         do {
-
-            let granted =
-                try await store.requestFullAccessToEvents()
-
-            guard granted else {
-
-                print("캘린더 권한 없음")
-                return false
-            }
-
             let event =
                 EKEvent(eventStore: store)
 
@@ -50,7 +63,7 @@ final class CalendarService {
 
             print("캘린더 저장 성공")
 
-            return true
+            return .success
 
         } catch {
 
@@ -59,8 +72,46 @@ final class CalendarService {
                 error.localizedDescription
             )
 
+            return .failure
+        }
+    }
+
+    private func requestCalendarAccessIfNeeded() async -> Bool {
+        switch EKEventStore.authorizationStatus(for: .event) {
+        case .fullAccess, .writeOnly:
+            return true
+
+        case .notDetermined:
+            do {
+                return try await store.requestFullAccessToEvents()
+            } catch {
+                print(
+                    "캘린더 권한 요청 실패:",
+                    error.localizedDescription
+                )
+                return false
+            }
+
+        case .authorized:
+            return true
+
+        case .denied, .restricted:
+            return false
+
+        @unknown default:
             return false
         }
+    }
+
+    @MainActor
+    func openAppSettings() {
+        guard let url = URL(
+            string: UIApplication.openSettingsURLString
+        ) else {
+            return
+        }
+
+        UIApplication.shared.open(url)
     }
 
     @MainActor

@@ -13,6 +13,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var photoLibraryObserver: PhotoLibraryObserver?
+    @State private var isShowingIntroSplash = true
 
     private let photoUploadService = PhotoUploadService()
 
@@ -34,7 +35,17 @@ struct RootView: View {
                     }
 
             } else {
-                IntroPagerView()
+                if isShowingIntroSplash {
+                    IntroSplashView {
+                        withAnimation(.easeInOut(duration: 0.35)) {
+                            isShowingIntroSplash = false
+                        }
+                    }
+                    .transition(.opacity)
+                } else {
+                    IntroPagerView()
+                        .transition(.opacity)
+                }
             }
         }
     }
@@ -63,6 +74,37 @@ struct RootView: View {
                     photoLibraryObserver = PhotoLibraryObserver(
                         modelContext: modelContext
                     )
+                }
+            }
+        }
+    }
+}
+
+private struct IntroSplashView: View {
+    let onFinished: () -> Void
+
+    @State private var hasStarted = false
+
+    var body: some View {
+        ZStack {
+            Color(red: 0.97, green: 0.98, blue: 0.99)
+                .ignoresSafeArea()
+
+            Image("splash_logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 260)
+        }
+        .onAppear {
+            guard !hasStarted else {
+                return
+            }
+
+            hasStarted = true
+            Task {
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                await MainActor.run {
+                    onFinished()
                 }
             }
         }

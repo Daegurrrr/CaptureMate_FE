@@ -14,6 +14,8 @@ struct RecommendedActionCard: View {
 
     @State private var pendingScheduleAction: RecommendedAction?
     @State private var showCalendarAlert = false
+    @State private var showCalendarPermissionAlert = false
+    @State private var showCalendarSaveFailedAlert = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -53,17 +55,52 @@ struct RecommendedActionCard: View {
         } message: {
             Text(pendingScheduleAction?.title ?? "")
         }
+        .alert("캘린더 권한이 필요해요", isPresented: $showCalendarPermissionAlert) {
+            Button("취소", role: .cancel) {}
+
+            Button("설정 열기") {
+                Task {
+                    await CalendarService.shared.openAppSettings()
+                }
+            }
+        } message: {
+            Text("일정을 저장하려면 설정에서 캘린더 접근 권한을 허용해주세요.")
+        }
+        .alert("캘린더 저장에 실패했어요", isPresented: $showCalendarSaveFailedAlert) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text("잠시 후 다시 시도해주세요.")
+        }
     }
 
     private func handleAction(_ action: RecommendedAction) {
         switch action.type {
 
-        case .place, .shopping:
+        case .place:
             guard let urlString = action.url,
                   let url = URL(string: urlString) else {
+                print("장소 추천 액션 URL 없음:", action.title)
+                return
+            }
+            UIApplication.shared.open(url) { success in
+                guard !success,
+                      let fallbackURLString = action.fallbackURL,
+                      let fallbackURL = URL(string: fallbackURLString) else {
+                    return
+                }
+
+                UIApplication.shared.open(fallbackURL)
+            }
+            onDelete(action)
+
+        case .shopping:
+            guard let urlString = action.url,
+                  let url = URL(string: urlString) else {
+                print("쇼핑 추천 액션 URL 없음:", action.title)
                 return
             }
             UIApplication.shared.open(url)
+            onDelete(action)
 
         case .schedule:
             pendingScheduleAction = action
@@ -85,16 +122,32 @@ struct RecommendedActionCard: View {
         ) ?? startDate
 
         Task {
-            let success = await CalendarService.shared.addEvent(
+            let result = await CalendarService.shared.addEventWithResult(
                 title: action.title,
                 startDate: startDate,
                 endDate: endDate
             )
 
-            if success {
+            switch result {
+            case .success:
                 await CalendarService.shared.openCalendarApp(
                     at: startDate
                 )
+
+                await MainActor.run {
+                    onDelete(action)
+                    pendingScheduleAction = nil
+                }
+
+            case .permissionDenied:
+                await MainActor.run {
+                    showCalendarPermissionAlert = true
+                }
+
+            case .failure:
+                await MainActor.run {
+                    showCalendarSaveFailedAlert = true
+                }
             }
         }
     }

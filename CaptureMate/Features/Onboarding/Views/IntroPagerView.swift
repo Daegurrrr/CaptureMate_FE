@@ -10,35 +10,39 @@ import SwiftUI
 struct IntroPagerView: View {
     @EnvironmentObject private var session: AppSession
     @State private var currentPage = 0
+    @State private var maxSeenPage = 0
 
     private let pages: [IntroPage] = [
         IntroPage(
-            imageName: "intro_home",
-            title: "스크린샷 찍고\n분석해서 정보 저장 빠르게",
+            imageName: "onboarding_capture",
+            title: "필요한 순간을\n먼저 캡쳐하세요",
             subtitle: ""
         ),
         IntroPage(
-            imageName: "intro_map",
-            title: "장소\n자동 분류하고 저장까지!",
+            imageName: "onboarding_category",
+            title: "캡쳐는 카테고리별로\n자동 정리돼요",
             subtitle: ""
         ),
         IntroPage(
-            imageName: "intro_search",
-            title: "지금 바로 시작해보세요!",
+            imageName: "onboarding_action",
+            title: "추천 액션을 누르면\n바로 원하는 곳으로 이동해요",
+            subtitle: ""
+        ),
+        IntroPage(
+            imageName: "onboarding_results",
+            title: "장소, 쇼핑, 일정, 메모까지\n필요한 정보만 보여드려요",
             subtitle: ""
         )
     ]
 
+    private var canStart: Bool {
+        maxSeenPage >= pages.count - 1
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Button {
-                } label: {
-                    Text("사용 가이드 보기")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.black)
-                        .padding(.top, 20)
-                }
+                Spacer().frame(height: 18)
                 
                 TabView(selection: $currentPage) {
                     ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
@@ -49,6 +53,9 @@ struct IntroPagerView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .frame(maxWidth: .infinity)
                 .frame(height: 620)
+                .onChange(of: currentPage) { _, newPage in
+                    maxSeenPage = max(maxSeenPage, newPage)
+                }
 
                 HStack(spacing: 10) {
                     ForEach(0..<pages.count, id: \.self) { index in
@@ -60,6 +67,10 @@ struct IntroPagerView: View {
                 .padding(.top, 12)
 
                 Button {
+                    guard canStart else {
+                        return
+                    }
+
                     session.completeIntro()
                 } label: {
                     Text("시작하기")
@@ -67,9 +78,10 @@ struct IntroPagerView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.blue)
+                        .background(canStart ? Color.blue : Color.gray.opacity(0.35))
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                 }
+                .disabled(!canStart)
                 .buttonStyle(.plain)
                 .padding(.horizontal, 24)
                 .padding(.top, 28)
